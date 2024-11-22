@@ -9,6 +9,7 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
 import com.ev.ocpp16.websocket.OcppWebSocketHandler;
+import com.ev.ocpp16.websocket.interceptor.AuthHandshakeInterceptor;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,11 +19,14 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
+
     private final OcppWebSocketHandler ocppWebSocketHandler;
+    private final AuthHandshakeInterceptor authHandshakeInterceptor;
 
     @Override
     public void registerWebSocketHandlers(@NonNull WebSocketHandlerRegistry registry) {
         registry.addHandler(ocppWebSocketHandler, REGIST_PATH)
-                .setAllowedOrigins("*");
+                .setAllowedOrigins("*")
+                .addInterceptors(authHandshakeInterceptor);
     }
 }
