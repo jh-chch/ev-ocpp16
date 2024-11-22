@@ -1,6 +1,6 @@
-package com.ev.ocpp16.common.config;
+package com.ev.ocpp16.websocket.config;
 
-import static com.ev.ocpp16.common.utils.Constants.REGIST_PATH;
+import static com.ev.ocpp16.websocket.utils.Constants.REGIST_PATH;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
@@ -8,7 +8,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
-import com.ev.ocpp16.common.handler.OcppWebSocketHandler;
+import com.ev.ocpp16.websocket.OcppWebSocketHandler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
