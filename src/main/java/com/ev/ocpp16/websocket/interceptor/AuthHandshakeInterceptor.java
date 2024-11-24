@@ -17,9 +17,9 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 import org.springframework.web.util.UriTemplate;
 
+import com.ev.ocpp16.domain.chargepoint.service.ChargerService;
 import com.ev.ocpp16.websocket.dto.PathInfo;
 import com.ev.ocpp16.websocket.dto.PathValidationResult;
-import com.ev.ocpp16.websocket.repository.ChargerRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AuthHandshakeInterceptor implements HandshakeInterceptor {
 
-    private final ChargerRepository chargerRepository;
+    private final ChargerService chargerService;
 
     private static final String PATH_SEPARATOR = ":";
     private static final String MDC_SEPARATOR = "-";
@@ -76,7 +76,7 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
     }
 
     private boolean isChargerActive(Long chgrId) {
-        return chargerRepository.findByIdAndIsActiveTrue(chgrId).isPresent();
+        return chargerService.isChgrActive(chgrId);
     }
 
     private boolean isSecureRequest(ServerHttpRequest request) {
