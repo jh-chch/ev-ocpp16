@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class OcppWebSocketHandler extends TextWebSocketHandler {
 
+    private final SessionManager sessionManager;
     private final ChargerService chargerService;
 
     @PostConstruct
@@ -29,8 +30,7 @@ public class OcppWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         log.info("afterConnectionEstablished");
-        // TODO Auto-generated method stub
-        super.afterConnectionEstablished(session);
+        sessionManager.addSession(session);
     }
 
     @Override
@@ -43,8 +43,7 @@ public class OcppWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         log.info("afterConnectionClosed");
-        // TODO Auto-generated method stub
-        super.afterConnectionClosed(session, status);
+        sessionManager.removeSession(session);
     }
 
 }
