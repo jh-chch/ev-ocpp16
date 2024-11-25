@@ -25,4 +25,13 @@ public class ChargerService {
     public void updateAllChgrConnSt(ChgrConnSt chgrConnSt) {
         chargerRepository.updateAllChgrConnSt(chgrConnSt);
     }
+
+    public boolean updateChgrConnSt(Long chgrId, ChgrConnSt chgrConnSt) {
+        return chargerRepository.findByIdAndIsActiveTrue(chgrId)
+                .map(charger -> {
+                    charger.changeChgrConnSt(chgrConnSt);
+                    return true;
+                })
+                .orElse(false);
+    }
 }

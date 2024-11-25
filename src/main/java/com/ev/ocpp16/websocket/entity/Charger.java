@@ -41,13 +41,17 @@ public class Charger extends BaseTimeEntity {
     private String firmwareVersion;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "connection_status", nullable = false)
+    @Column(name = "connection_status")
     private ChgrConnSt chgrConnSt;
 
-    @Column(name = "is_active", nullable = false)
-    private boolean isActive = true;
+    @Column(name = "is_active")
+    private boolean isActive;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "site_id")
     private Site site;
+
+    public void changeChgrConnSt(ChgrConnSt chgrConnSt) {
+        this.chgrConnSt = chgrConnSt;
+    }
 }
