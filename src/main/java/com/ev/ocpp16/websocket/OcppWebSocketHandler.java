@@ -1,5 +1,8 @@
 package com.ev.ocpp16.websocket;
 
+import static com.ev.ocpp16.websocket.utils.Constants.MDC_KEY;
+
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -39,8 +42,9 @@ public class OcppWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        MDC.put(MDC_KEY, (String) session.getAttributes().get(MDC_KEY));
         log.info("====> [handleTextMessage] session: {} message: {}", session, message.getPayload());
-        // TODO Auto-generated method stub
+
         super.handleTextMessage(session, message);
     }
 
@@ -52,6 +56,7 @@ public class OcppWebSocketHandler extends TextWebSocketHandler {
         chargerService.updateChgrConnSt(PathInfo.getPathInfoFromSession(session).getChgrId(), ChgrConnSt.DISCONNECTED);
 
         sessionManager.removeSession(session);
+        MDC.remove((String) session.getAttributes().get(MDC_KEY));
     }
 
 }
