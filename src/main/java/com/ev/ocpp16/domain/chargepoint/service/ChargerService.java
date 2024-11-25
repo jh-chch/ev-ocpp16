@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 public class ChargerService {
     private final ChargerRepository chargerRepository;
 
-    public boolean isChgrActive(Long chgrId) {
+    public boolean isChgrActiveTrue(Long chgrId) {
         return chargerRepository.findByIdAndIsActiveTrue(chgrId).isPresent();
     }
 }

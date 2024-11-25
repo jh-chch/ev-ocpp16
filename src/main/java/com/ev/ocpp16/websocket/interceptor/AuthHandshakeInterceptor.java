@@ -68,15 +68,15 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
     }
 
     private boolean isValidConnection(Long chgrId, String userType, ServerHttpRequest request) {
-        return isValidUserType(userType) && isChargerActive(chgrId) && isSecureRequest(request);
+        return isValidUserType(userType) && isChargerActiveTrue(chgrId) && isSecureRequest(request);
     }
 
     private boolean isValidUserType(String userType) {
         return USER_TYPE_ADMIN.equals(userType) || USER_TYPE_USER.equals(userType);
     }
 
-    private boolean isChargerActive(Long chgrId) {
-        return chargerService.isChgrActive(chgrId);
+    private boolean isChargerActiveTrue(Long chgrId) {
+        return chargerService.isChgrActiveTrue(chgrId);
     }
 
     private boolean isSecureRequest(ServerHttpRequest request) {

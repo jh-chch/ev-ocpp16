@@ -53,7 +53,7 @@ class AuthHandshakeInterceptorTest {
     @Test
     void 유효한_경로() throws Exception {
         when(request.getURI()).thenReturn(new URI("/wsuser/1.6/123/456"));
-        when(chargerService.isChgrActive(456L)).thenReturn(true);
+        when(chargerService.isChgrActiveTrue(456L)).thenReturn(true);
 
         boolean result = interceptor.beforeHandshake(request, response, wsHandler, attributes);
 
