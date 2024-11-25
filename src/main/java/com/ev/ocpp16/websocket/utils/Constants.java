@@ -9,4 +9,8 @@ public interface Constants {
 
     String USER_TYPE_ADMIN = "wsadmin";
     String USER_TYPE_USER = "wsuser";
+
+    int CALL_CLIENT_TO_SERVER = 2;
+    int CALL_RESULT_SERVER_TO_CLIENT = 3;
+    int CALL_ERROR_SERVER_TO_CLIENT = 4;
 }

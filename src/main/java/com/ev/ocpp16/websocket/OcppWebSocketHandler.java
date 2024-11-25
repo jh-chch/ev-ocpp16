@@ -12,6 +12,8 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.ev.ocpp16.domain.chargepoint.service.ChargerService;
 import com.ev.ocpp16.websocket.dto.PathInfo;
 import com.ev.ocpp16.websocket.entity.enums.ChgrConnSt;
+import com.ev.ocpp16.websocket.exception.OcppException;
+import com.ev.ocpp16.websocket.exception.OcppExceptionHandler;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class OcppWebSocketHandler extends TextWebSocketHandler {
 
+    private final OcppExceptionHandler errorHandler;
     private final SessionManager sessionManager;
     private final ChargerService chargerService;
 
@@ -42,10 +45,16 @@ public class OcppWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        MDC.put(MDC_KEY, (String) session.getAttributes().get(MDC_KEY));
-        log.info("====> [handleTextMessage] session: {} message: {}", session, message.getPayload());
+        try {
+            MDC.put(MDC_KEY, (String) session.getAttributes().get(MDC_KEY));
+            log.info("====> [handleTextMessage] session: {} message: {}", session, message.getPayload());
 
-        super.handleTextMessage(session, message);
+        } catch (OcppException e) {
+            errorHandler.handleOcppException(session, e);
+        } catch (Exception e) {
+            e.printStackTrace();
+            session.sendMessage(new TextMessage(""));
+        }
     }
 
     @Override
