@@ -2,8 +2,9 @@ package com.ev.ocpp16.domain.chargepoint.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.ev.ocpp16.websocket.entity.enums.ChgrConnSt;
-import com.ev.ocpp16.websocket.repository.ChargerRepository;
+
+import com.ev.ocpp16.domain.chargepoint.entity.enums.ChgrConnSt;
+import com.ev.ocpp16.domain.chargepoint.repository.ChargerRepository;
 
 import lombok.RequiredArgsConstructor;
 

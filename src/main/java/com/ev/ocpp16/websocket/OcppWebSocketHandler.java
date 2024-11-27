@@ -9,9 +9,9 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import com.ev.ocpp16.domain.chargepoint.entity.enums.ChgrConnSt;
 import com.ev.ocpp16.domain.chargepoint.service.ChargerService;
 import com.ev.ocpp16.websocket.dto.PathInfo;
-import com.ev.ocpp16.websocket.entity.enums.ChgrConnSt;
 import com.ev.ocpp16.websocket.exception.OcppException;
 import com.ev.ocpp16.websocket.exception.OcppExceptionHandler;
 
