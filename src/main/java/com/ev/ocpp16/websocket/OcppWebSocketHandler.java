@@ -2,6 +2,8 @@ package com.ev.ocpp16.websocket;
 
 import static com.ev.ocpp16.websocket.utils.Constants.MDC_KEY;
 
+import java.util.List;
+
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -11,9 +13,16 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.ev.ocpp16.domain.chargepoint.entity.enums.ChgrConnSt;
 import com.ev.ocpp16.domain.chargepoint.service.ChargerService;
+import com.ev.ocpp16.websocket.dto.CallRequest;
+import com.ev.ocpp16.websocket.dto.CallResponse;
 import com.ev.ocpp16.websocket.dto.PathInfo;
+import com.ev.ocpp16.websocket.exception.ErrorCode;
 import com.ev.ocpp16.websocket.exception.OcppException;
 import com.ev.ocpp16.websocket.exception.OcppExceptionHandler;
+import com.ev.ocpp16.websocket.protocol.message.MessageProcessor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +32,11 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 public class OcppWebSocketHandler extends TextWebSocketHandler {
-
+    private final List<MessageProcessor> messageProcessors;
     private final OcppExceptionHandler errorHandler;
     private final SessionManager sessionManager;
     private final ChargerService chargerService;
+    private final ObjectMapper objectMapper;
 
     @PostConstruct
     public void initializeChargerConnectionStatus() {
@@ -45,9 +55,25 @@ public class OcppWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        MDC.put(MDC_KEY, (String) session.getAttributes().get(MDC_KEY));
+        log.info("====> [handleTextMessage] session: {} message: {}", session, message.getPayload());
+
         try {
-            MDC.put(MDC_KEY, (String) session.getAttributes().get(MDC_KEY));
-            log.info("====> [handleTextMessage] session: {} message: {}", session, message.getPayload());
+            JsonNode jsonNode = parseJsonNode(message);
+
+            var messageProcessor = messageProcessors.stream()
+                    .filter(processor -> processor.support(jsonNode))
+                    .findFirst()
+                    .orElseThrow(() -> new OcppException(
+                            jsonNode.get(1).asText(),
+                            ErrorCode.TYPE_CONSTRAINT_VIOLATION,
+                            "Invalid message type identifier: " + jsonNode));
+
+            messageProcessor.validate(jsonNode);
+
+            CallRequest<JsonNode> callRequest = messageProcessor.parse(jsonNode);
+
+            CallResponse callResponse = messageProcessor.process(session, callRequest);
 
         } catch (OcppException e) {
             errorHandler.handleOcppException(session, e);
@@ -68,4 +94,11 @@ public class OcppWebSocketHandler extends TextWebSocketHandler {
         MDC.remove((String) session.getAttributes().get(MDC_KEY));
     }
 
+    private JsonNode parseJsonNode(TextMessage message) {
+        try {
+            return objectMapper.readTree(message.getPayload());
+        } catch (JsonProcessingException e) {
+            throw new OcppException("", ErrorCode.FORMATION_VIOLATION, "Failed to parse JSON: " + e.getMessage());
+        }
+    }
 }
