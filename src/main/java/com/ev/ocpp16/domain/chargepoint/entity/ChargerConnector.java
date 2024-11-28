@@ -1,6 +1,6 @@
 package com.ev.ocpp16.domain.chargepoint.entity;
 
-import com.ev.ocpp16.domain.chargepoint.entity.enums.ChargePointStatus;
+import com.ev.ocpp16.domain.common.dto.ChargePointStatus;
 import com.ev.ocpp16.domain.common.entity.BaseTimeEntity;
 
 import jakarta.persistence.Column;
