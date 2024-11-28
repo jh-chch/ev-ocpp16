@@ -31,17 +31,24 @@ public class CallMessageProcessor<T, R> implements MessageProcessor {
 
     @Override
     public CallResponse process(WebSocketSession session, CallRequest<JsonNode> callRequest) throws Exception {
-        PathInfo pathInfo = PathInfo.from(session);
+        try {
+            PathInfo pathInfo = PathInfo.from(session);
 
-        ActionHandler<T, R> actionHandler = findActionHandler(pathInfo, callRequest);
+            ActionHandler<T, R> actionHandler = findActionHandler(pathInfo, callRequest);
 
-        T parsedPayload = validateAndParsePayload(actionHandler, callRequest);
+            T parsedPayload = validateAndParsePayload(actionHandler, callRequest);
 
-        CallRequest<T> parsedCallRequest = buildCallRequest(callRequest, parsedPayload);
+            CallRequest<T> parsedCallRequest = buildCallRequest(callRequest, parsedPayload);
 
-        R handleAction = actionHandler.handleAction(pathInfo, parsedCallRequest);
+            R handleAction = actionHandler.handleAction(pathInfo, parsedCallRequest);
 
-        return new CallResponse(session, pathInfo, callRequest, createMessage(pathInfo, callRequest, handleAction));
+            return new CallResponse(session, pathInfo, callRequest, createMessage(pathInfo, callRequest, handleAction));
+        } catch (OcppException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new OcppException(callRequest.getUniqueId(), ErrorCode.INTERNAL_ERROR,
+                    "Unexpected error: " + e.getMessage());
+        }
     }
 
     @Override
