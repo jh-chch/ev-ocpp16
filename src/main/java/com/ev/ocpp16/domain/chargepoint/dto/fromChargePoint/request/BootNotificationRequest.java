@@ -1,5 +1,7 @@
 package com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.request;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import lombok.Getter;
 import lombok.ToString;
 
@@ -19,12 +21,18 @@ import lombok.ToString;
 @ToString
 public class BootNotificationRequest {
     private String chargeBoxSerialNumber;
-    private String chargePointModel; // 1..1
+    private final String chargePointModel; // 1..1
     private String chargePointSerialNumber;
-    private String chargePointVendor; // 1..1
+    private final String chargePointVendor; // 1..1
     private String firmwareVersion;
     private String iccid;
     private String imsi;
     private String meterSerialNumber;
     private String meterType;
+
+    @JsonCreator
+    public BootNotificationRequest(String chargePointModel, String chargePointVendor) {
+        this.chargePointModel = chargePointModel;
+        this.chargePointVendor = chargePointVendor;
+    }
 }

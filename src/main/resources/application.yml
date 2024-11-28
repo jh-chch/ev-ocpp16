@@ -17,3 +17,6 @@ spring:
 logging:
   level:
     "[org.hibernate.SQL]": debug
+
+boot:
+  interval: 30

@@ -3,6 +3,7 @@ package com.ev.ocpp16.domain.chargepoint.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ev.ocpp16.domain.chargepoint.dto.ChgrInfoUpdateDTO;
 import com.ev.ocpp16.domain.chargepoint.entity.enums.ChgrConnSt;
 import com.ev.ocpp16.domain.chargepoint.repository.ChargerRepository;
 
@@ -31,6 +32,16 @@ public class ChargerService {
         return chargerRepository.findByIdAndIsActiveTrue(chgrId)
                 .map(charger -> {
                     charger.changeChgrConnSt(chgrConnSt);
+                    return true;
+                })
+                .orElse(false);
+    }
+
+    public boolean updateChgrInfo(ChgrInfoUpdateDTO chgrInfoUpdateDTO) {
+        return chargerRepository.findByIdAndIsActiveTrue(chgrInfoUpdateDTO.getChgrId())
+                .map(charger -> {
+                    charger.changeChgrInfo(chgrInfoUpdateDTO.getModel(), chgrInfoUpdateDTO.getSerialNumber(),
+                            chgrInfoUpdateDTO.getVendor(), chgrInfoUpdateDTO.getFirmwareVersion());
                     return true;
                 })
                 .orElse(false);

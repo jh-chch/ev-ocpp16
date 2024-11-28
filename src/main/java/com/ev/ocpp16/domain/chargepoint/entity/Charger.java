@@ -1,5 +1,6 @@
 package com.ev.ocpp16.domain.chargepoint.entity;
 
+import com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.request.BootNotificationRequest;
 import com.ev.ocpp16.domain.chargepoint.entity.enums.ChgrConnSt;
 import com.ev.ocpp16.domain.common.entity.BaseTimeEntity;
 
@@ -29,11 +30,11 @@ public class Charger extends BaseTimeEntity {
     @Column(name = "name", nullable = false, length = 30)
     private String name;
 
-    @Column(name = "serial_number", unique = true, length = 30)
-    private String serialNumber;
-
     @Column(name = "model", length = 30)
     private String model;
+
+    @Column(name = "serial_number", unique = true, length = 30)
+    private String serialNumber;
 
     @Column(name = "vendor", length = 30)
     private String vendor;
@@ -54,5 +55,12 @@ public class Charger extends BaseTimeEntity {
 
     public void changeChgrConnSt(ChgrConnSt chgrConnSt) {
         this.chgrConnSt = chgrConnSt;
+    }
+
+    public void changeChgrInfo(String model, String serialNumber, String vendor, String firmwareVersion) {
+        this.model = model;
+        this.serialNumber = serialNumber;
+        this.vendor = vendor;
+        this.firmwareVersion = firmwareVersion;
     }
 }
