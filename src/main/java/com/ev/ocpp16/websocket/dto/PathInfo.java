@@ -19,7 +19,15 @@ public class PathInfo {
     private final Long siteId;
     private final Long chgrId;
 
-    public static PathInfo getPathInfoFromSession(WebSocketSession session) {
-        return (PathInfo) session.getAttributes().get(PATH_INFO);
+    public static PathInfo from(WebSocketSession session) {
+        if (session == null) {
+            throw new IllegalArgumentException("Session cannot be null");
+        }
+
+        Object pathInfo = session.getAttributes().get(PATH_INFO);
+        if (pathInfo == null) {
+            throw new IllegalStateException("PathInfo not found in session");
+        }
+        return (PathInfo) pathInfo;
     }
 }

@@ -25,7 +25,7 @@ public class CallResultProcessor implements MessageProcessor {
 
     @Override
     public CallResponse process(WebSocketSession session, CallRequest<JsonNode> callRequest) throws Exception {
-        PathInfo pathInfo = PathInfo.getPathInfoFromSession(session);
+        PathInfo pathInfo = PathInfo.from(session);
         return new CallResponse(session, pathInfo, callRequest, createMessage(pathInfo, callRequest));
     }
 

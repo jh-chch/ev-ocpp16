@@ -50,7 +50,7 @@ public class MessageSender {
         boolean isSessionFound = false;
 
         for (WebSocketSession session : sessionManager.getSessionMap().values()) {
-            PathInfo targetPathInfo = PathInfo.getPathInfoFromSession(session);
+            PathInfo targetPathInfo = PathInfo.from(session);
 
             // 현재 세션이 타겟 세션이 맞으면 메시지 전송
             if (isTargetSession(userType, pathInfo, targetPathInfo)) {

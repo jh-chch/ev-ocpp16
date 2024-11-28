@@ -51,7 +51,7 @@ public class OcppWebSocketHandler extends TextWebSocketHandler {
         sessionManager.addSession(session);
 
         // 소켓 연결 시 충전기 상태 CONNECTED 상태로 변경
-        chargerService.updateChgrConnSt(PathInfo.getPathInfoFromSession(session).getChgrId(), ChgrConnSt.CONNECTED);
+        chargerService.updateChgrConnSt(PathInfo.from(session).getChgrId(), ChgrConnSt.CONNECTED);
     }
 
     @Override
@@ -95,7 +95,7 @@ public class OcppWebSocketHandler extends TextWebSocketHandler {
         log.info("afterConnectionClosed");
 
         // 소켓 연결 종료 시 충전기 상태 DISCONNECTED 상태로 변경
-        chargerService.updateChgrConnSt(PathInfo.getPathInfoFromSession(session).getChgrId(), ChgrConnSt.DISCONNECTED);
+        chargerService.updateChgrConnSt(PathInfo.from(session).getChgrId(), ChgrConnSt.DISCONNECTED);
 
         sessionManager.removeSession(session);
         MDC.remove((String) session.getAttributes().get(MDC_KEY));
