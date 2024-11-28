@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ev.ocpp16.domain.chargepoint.dto.ChgrConnUpdateDTO;
 import com.ev.ocpp16.domain.chargepoint.dto.ChgrInfoUpdateDTO;
-import com.ev.ocpp16.domain.chargepoint.entity.Charger;
 import com.ev.ocpp16.domain.chargepoint.entity.enums.ChgrConnSt;
 import com.ev.ocpp16.domain.chargepoint.repository.ChargerConnectorRepository;
 import com.ev.ocpp16.domain.chargepoint.repository.ChargerRepository;
@@ -44,11 +43,11 @@ public class ChargerService {
     }
 
     // 충전기 정보 업데이트 성공: true, 실패: false
-    public Optional<Charger> updateChgrInfo(ChgrInfoUpdateDTO dto) {
+    public Optional<ChgrInfoUpdateDTO> updateChgrInfo(ChgrInfoUpdateDTO dto) {
         return chargerRepository.findByIdAndIsActiveTrue(dto.getChgrId())
                 .map(charger -> {
                     charger.changeChgrInfo(dto);
-                    return Optional.of(charger);
+                    return Optional.of(dto);
                 })
                 .orElse(Optional.empty());
     }
