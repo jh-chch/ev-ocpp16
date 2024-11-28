@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OcppWebSocketHandler extends TextWebSocketHandler {
     private final List<MessageProcessor> messageProcessors;
     private final OcppExceptionHandler errorHandler;
+    private final MessageSender messageSender;
     private final SessionManager sessionManager;
     private final ChargerService chargerService;
     private final ObjectMapper objectMapper;
@@ -61,6 +62,7 @@ public class OcppWebSocketHandler extends TextWebSocketHandler {
         try {
             JsonNode jsonNode = parseJsonNode(message);
 
+            // 유효한 메시지 프로세서 조회
             var messageProcessor = messageProcessors.stream()
                     .filter(processor -> processor.support(jsonNode))
                     .findFirst()
@@ -69,12 +71,17 @@ public class OcppWebSocketHandler extends TextWebSocketHandler {
                             ErrorCode.TYPE_CONSTRAINT_VIOLATION,
                             "Invalid message type identifier: " + jsonNode));
 
+            // 메시지 유효성 검사
             messageProcessor.validate(jsonNode);
 
+            // 메시지 파싱
             CallRequest<JsonNode> callRequest = messageProcessor.parse(jsonNode);
 
+            // 메시지 처리
             CallResponse callResponse = messageProcessor.process(session, callRequest);
 
+            // 메시지 전송
+            messageSender.sendMessage(callResponse);
         } catch (OcppException e) {
             errorHandler.handleOcppException(session, e);
         } catch (Exception e) {
