@@ -42,4 +42,8 @@ public class ChargerConnector extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "charger_id", nullable = false)
     private Charger charger;
+
+    public void changeChgrSt(ChargePointStatus chargePointStatus) {
+        this.chargePointStatus = chargePointStatus;
+    }
 }

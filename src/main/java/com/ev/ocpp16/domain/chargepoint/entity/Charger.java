@@ -1,5 +1,6 @@
 package com.ev.ocpp16.domain.chargepoint.entity;
 
+import com.ev.ocpp16.domain.chargepoint.dto.ChgrInfoUpdateDTO;
 import com.ev.ocpp16.domain.chargepoint.entity.enums.ChgrConnSt;
 import com.ev.ocpp16.domain.common.entity.BaseTimeEntity;
 
@@ -56,10 +57,17 @@ public class Charger extends BaseTimeEntity {
         this.chgrConnSt = chgrConnSt;
     }
 
-    public void changeChgrInfo(String model, String serialNumber, String vendor, String firmwareVersion) {
-        this.model = model;
-        this.serialNumber = serialNumber;
-        this.vendor = vendor;
-        this.firmwareVersion = firmwareVersion;
+    public void changeChgrInfo(ChgrInfoUpdateDTO chgrInfoUpdateDTO) {
+        this.model = chgrInfoUpdateDTO.getModel();
+        this.vendor = chgrInfoUpdateDTO.getVendor();
+
+        if (chgrInfoUpdateDTO.getSerialNumber() != null) {
+            this.serialNumber = chgrInfoUpdateDTO.getSerialNumber();
+        }
+
+        if (chgrInfoUpdateDTO.getFirmwareVersion() != null) {
+            this.firmwareVersion = chgrInfoUpdateDTO.getFirmwareVersion();
+        }
     }
+
 }

@@ -31,14 +31,14 @@ public class BootNotification implements ActionHandler<BootNotificationRequest, 
 
     @Override
     public BootNotificationResponse handleAction(PathInfo pathInfo, CallRequest<BootNotificationRequest> callRequest) {
-        boolean updateChgrInfo = chargerService.updateChgrInfo(
-                new ChgrInfoUpdateDTO(pathInfo.getChgrId(),
-                        callRequest.getPayload().getChargePointModel(),
-                        callRequest.getPayload().getChargePointSerialNumber(),
-                        callRequest.getPayload().getChargePointVendor(),
-                        callRequest.getPayload().getFirmwareVersion()));
+        ChgrInfoUpdateDTO chgrInfoUpdateDTO = new ChgrInfoUpdateDTO(pathInfo.getChgrId(),
+                callRequest.getPayload().getChargePointModel(),
+                callRequest.getPayload().getChargePointSerialNumber(),
+                callRequest.getPayload().getChargePointVendor(),
+                callRequest.getPayload().getFirmwareVersion());
 
-        RegistrationStatus registrationStatus = updateChgrInfo ? RegistrationStatus.Accepted
+        RegistrationStatus registrationStatus = chargerService.updateChgrInfo(chgrInfoUpdateDTO).isPresent()
+                ? RegistrationStatus.Accepted
                 : RegistrationStatus.Rejected;
 
         return new BootNotificationResponse(DateTimeUtil.currentDateTimeToISO8601(), interval, registrationStatus);
