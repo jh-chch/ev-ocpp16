@@ -29,11 +29,12 @@ public class Authorize implements ActionHandler<AuthorizeRequest, AuthorizeRespo
     public AuthorizeResponse handleAction(PathInfo pathInfo, CallRequest<AuthorizeRequest> callRequest) {
         String idToken = callRequest.getPayload().getIdTag().getIdToken();
 
+        // idToken으로 회원 조회
         return memberService.getMemberByIdToken(idToken)
                 .map(member -> {
                     AuthorizationStatus status = AccountStatus.ACTIVE.equals(member.getAccountStatus())
                             ? AuthorizationStatus.Accepted
-                            : AuthorizationStatus.Expired;
+                            : AuthorizationStatus.Blocked;
                     return new AuthorizeResponse(new IdTagInfo(status));
                 })
                 .orElseGet(() -> new AuthorizeResponse(new IdTagInfo(AuthorizationStatus.Invalid)));
