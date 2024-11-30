@@ -24,9 +24,13 @@ public class CallResultProcessor implements MessageProcessor {
     private final ObjectMapper objectMapper;
 
     @Override
-    public CallResponse process(WebSocketSession session, CallRequest<JsonNode> callRequest) throws Exception {
-        PathInfo pathInfo = PathInfo.from(session);
-        return new CallResponse(session, pathInfo, callRequest, createMessage(pathInfo, callRequest));
+    public CallResponse process(WebSocketSession session, CallRequest<JsonNode> callRequest) {
+        try {
+            PathInfo pathInfo = PathInfo.from(session);
+            return new CallResponse(session, pathInfo, callRequest, createMessage(pathInfo, callRequest));
+        } catch (Exception e) {
+            throw new OcppException(callRequest.getUniqueId(), ErrorCode.INTERNAL_ERROR, e.getMessage());
+        }
     }
 
     @Override

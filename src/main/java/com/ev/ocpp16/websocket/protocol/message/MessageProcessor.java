@@ -7,7 +7,7 @@ import com.ev.ocpp16.websocket.dto.CallResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public interface MessageProcessor {
-    CallResponse process(WebSocketSession session, CallRequest<JsonNode> callRequest) throws Exception;
+    CallResponse process(WebSocketSession session, CallRequest<JsonNode> callRequest);
 
     boolean support(JsonNode jsonNode);
 

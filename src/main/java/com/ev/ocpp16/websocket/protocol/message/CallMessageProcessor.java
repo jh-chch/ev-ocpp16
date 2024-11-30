@@ -10,6 +10,10 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
+import com.ev.ocpp16.domain.chargepoint.exception.ChargerConnectorNotFoundException;
+import com.ev.ocpp16.domain.chargepoint.exception.ChargerNotFoundException;
+import com.ev.ocpp16.domain.member.exception.MemberNotFoundException;
+import com.ev.ocpp16.domain.transaction.exception.ChargerErrorNotFoundException;
 import com.ev.ocpp16.websocket.dto.CallRequest;
 import com.ev.ocpp16.websocket.dto.CallResponse;
 import com.ev.ocpp16.websocket.dto.PathInfo;
@@ -30,7 +34,7 @@ public class CallMessageProcessor<T, R> implements MessageProcessor {
     private final ObjectMapper objectMapper;
 
     @Override
-    public CallResponse process(WebSocketSession session, CallRequest<JsonNode> callRequest) throws Exception {
+    public CallResponse process(WebSocketSession session, CallRequest<JsonNode> callRequest) {
         try {
             PathInfo pathInfo = PathInfo.from(session);
 
@@ -43,11 +47,18 @@ public class CallMessageProcessor<T, R> implements MessageProcessor {
             R handleAction = actionHandler.handleAction(pathInfo, parsedCallRequest);
 
             return new CallResponse(session, pathInfo, callRequest, createMessage(pathInfo, callRequest, handleAction));
+        } catch (MemberNotFoundException e) {
+            throw new OcppException(callRequest.getUniqueId(), ErrorCode.SECURITY_ERROR, e.getMessage());
+        } catch (ChargerErrorNotFoundException e) {
+            throw new OcppException(callRequest.getUniqueId(), ErrorCode.INTERNAL_ERROR, e.getMessage());
+        } catch (ChargerConnectorNotFoundException e) {
+            throw new OcppException(callRequest.getUniqueId(), ErrorCode.GENERIC_ERROR, e.getMessage());
+        } catch (ChargerNotFoundException e) {
+            throw new OcppException(callRequest.getUniqueId(), ErrorCode.GENERIC_ERROR, e.getMessage());
         } catch (OcppException e) {
             throw e;
         } catch (Exception e) {
-            throw new OcppException(callRequest.getUniqueId(), ErrorCode.INTERNAL_ERROR,
-                    "Unexpected error: " + e.getMessage());
+            throw new OcppException(callRequest.getUniqueId(), ErrorCode.INTERNAL_ERROR, e.getMessage());
         }
     }
 

@@ -16,8 +16,6 @@ import com.ev.ocpp16.domain.transaction.exception.ChargerErrorNotFoundException;
 import com.ev.ocpp16.domain.transaction.service.TransactionService;
 import com.ev.ocpp16.websocket.dto.CallRequest;
 import com.ev.ocpp16.websocket.dto.PathInfo;
-import com.ev.ocpp16.websocket.exception.ErrorCode;
-import com.ev.ocpp16.websocket.exception.OcppException;
 import com.ev.ocpp16.websocket.protocol.action.ActionHandler;
 
 import lombok.RequiredArgsConstructor;
@@ -36,30 +34,20 @@ public class StatusNotification implements ActionHandler<StatusNotificationReque
 
     @Override
     public StatusNotificationResponse handleAction(PathInfo pathInfo,
-            CallRequest<StatusNotificationRequest> callRequest) {
+            CallRequest<StatusNotificationRequest> callRequest)
+            throws ChargerConnectorNotFoundException, ChargerErrorNotFoundException {
         Long chgrId = pathInfo.getChgrId();
         Integer connectorId = callRequest.getPayload().getConnectorId();
         ChargePointErrorCode errorCode = callRequest.getPayload().getErrorCode();
 
         // 1. 충전기 커넥터 상태값 변경
-        try {
-            chargerService
-                    .updateChgrConnSt(
-                            new ChgrConnStUpdateDTO(chgrId, connectorId, callRequest.getPayload().getStatus()));
-        } catch (ChargerConnectorNotFoundException e) {
-            throw new OcppException(callRequest.getUniqueId(), ErrorCode.GENERIC_ERROR, e.getMessage());
-        }
+        chargerService
+                .updateChgrConnSt(new ChgrConnStUpdateDTO(chgrId, connectorId, callRequest.getPayload().getStatus()));
 
         // 2. NoError가 아닌 경우 에러 이력 저장
-        try {
-            if (!NoError.equals(errorCode)) {
-                transactionService.saveChgrErrorHst(
-                        new ChgrErrorHstSaveDTO(chgrId, connectorId, errorCode, callRequest.getPayload().getInfo()));
-            }
-        } catch (ChargerConnectorNotFoundException e) {
-            throw new OcppException(callRequest.getUniqueId(), ErrorCode.GENERIC_ERROR, e.getMessage());
-        } catch (ChargerErrorNotFoundException e) {
-            new OcppException(callRequest.getUniqueId(), ErrorCode.INTERNAL_ERROR, e.getMessage());
+        if (!NoError.equals(errorCode)) {
+            transactionService.saveChgrErrorHst(
+                    new ChgrErrorHstSaveDTO(chgrId, connectorId, errorCode, callRequest.getPayload().getInfo()));
         }
 
         return new StatusNotificationResponse();
