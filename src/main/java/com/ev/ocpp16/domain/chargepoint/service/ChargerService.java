@@ -1,13 +1,15 @@
 package com.ev.ocpp16.domain.chargepoint.service;
 
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ev.ocpp16.domain.chargepoint.dto.ChgrConnUpdateDTO;
+import com.ev.ocpp16.domain.chargepoint.dto.ChgrConnStUpdateDTO;
 import com.ev.ocpp16.domain.chargepoint.dto.ChgrInfoUpdateDTO;
+import com.ev.ocpp16.domain.chargepoint.entity.Charger;
+import com.ev.ocpp16.domain.chargepoint.entity.ChargerConnector;
 import com.ev.ocpp16.domain.chargepoint.entity.enums.ChgrConnSt;
+import com.ev.ocpp16.domain.chargepoint.exception.ChargerConnectorNotFoundException;
+import com.ev.ocpp16.domain.chargepoint.exception.ChargerNotFoundException;
 import com.ev.ocpp16.domain.chargepoint.repository.ChargerConnectorRepository;
 import com.ev.ocpp16.domain.chargepoint.repository.ChargerRepository;
 
@@ -24,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class ChargerService {
     private final ChargerRepository chargerRepository;
     private final ChargerConnectorRepository chargerConnectorRepository;
-    
+
     public boolean isChgrActiveTrue(Long chgrId) {
         return chargerRepository.findByIdAndIsActiveTrue(chgrId).isPresent();
     }
@@ -33,36 +35,26 @@ public class ChargerService {
         chargerRepository.updateAllChgrConnSt(chgrConnSt);
     }
 
-    public boolean updateChgrConnSt(Long chgrId, ChgrConnSt chgrConnSt) {
-        return chargerRepository.findByIdAndIsActiveTrue(chgrId)
-                .map(charger -> {
-                    charger.changeChgrConnSt(chgrConnSt);
-                    return true;
-                })
-                .orElse(false);
+    public void updateChgrConnSt(Long chgrId, ChgrConnSt chgrConnSt) {
+        chargerRepository.findByIdAndIsActiveTrue(chgrId)
+                .ifPresent(charger -> charger.changeChgrConnSt(chgrConnSt));
     }
 
-    // 충전기 정보 업데이트 성공: true, 실패: false
-    public Optional<ChgrInfoUpdateDTO> updateChgrInfo(ChgrInfoUpdateDTO dto) {
-        return chargerRepository.findByIdAndIsActiveTrue(dto.getChgrId())
-                .map(charger -> {
-                    charger.changeChgrInfo(dto);
-                    return Optional.of(dto);
-                })
-                .orElse(Optional.empty());
+    // 충전기 정보 업데이트
+    public void updateChgrInfo(ChgrInfoUpdateDTO dto) throws ChargerNotFoundException {
+        Charger findChgr = chargerRepository.findByIdAndIsActiveTrue(dto.getChgrId())
+                .orElseThrow(() -> new ChargerNotFoundException(dto.getChgrId()));
+
+        findChgr.changeChgrInfo(dto);
     }
 
-    // 충전기 커넥터 상태 변경
-    public Optional<ChgrConnUpdateDTO> updateChgrConn(ChgrConnUpdateDTO dto) {
-        return chargerConnectorRepository.findByChargerIdAndConnectorId(dto.getChgrId(), dto.getConnectorId())
-                .map(chgrConn -> {
-                    chgrConn.changeChgrSt(dto.getChargePointStatus());
-                    return Optional.of(dto);
-                })
-                .orElse(Optional.empty());
+    // 충전기 커넥터 상태 업데이트
+    public void updateChgrConnSt(ChgrConnStUpdateDTO dto) throws ChargerConnectorNotFoundException {
+        ChargerConnector findChgrConn = chargerConnectorRepository
+                .findByChargerIdAndConnectorId(dto.getChgrId(), dto.getConnectorId())
+                .orElseThrow(() -> new ChargerConnectorNotFoundException(dto.getChgrId(), dto.getConnectorId()));
+
+        findChgrConn.changeChgrSt(dto.getChargePointStatus());
     }
-
-
-
 
 }

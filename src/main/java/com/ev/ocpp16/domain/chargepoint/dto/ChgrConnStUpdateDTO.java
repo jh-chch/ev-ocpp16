@@ -9,7 +9,7 @@ import lombok.ToString;
 @Getter
 @AllArgsConstructor
 @ToString
-public class ChgrConnUpdateDTO {
+public class ChgrConnStUpdateDTO {
     private Long chgrId;
     private Integer connectorId;
     private ChargePointStatus chargePointStatus;

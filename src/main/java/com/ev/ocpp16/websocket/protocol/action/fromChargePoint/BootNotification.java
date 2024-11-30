@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.ev.ocpp16.domain.chargepoint.dto.ChgrInfoUpdateDTO;
 import com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.request.BootNotificationRequest;
 import com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.response.BootNotificationResponse;
+import com.ev.ocpp16.domain.chargepoint.exception.ChargerNotFoundException;
 import com.ev.ocpp16.domain.chargepoint.service.ChargerService;
 import com.ev.ocpp16.domain.common.dto.RegistrationStatus;
 import com.ev.ocpp16.websocket.dto.CallRequest;
@@ -37,9 +38,12 @@ public class BootNotification implements ActionHandler<BootNotificationRequest, 
                 callRequest.getPayload().getChargePointVendor(),
                 callRequest.getPayload().getFirmwareVersion());
 
-        RegistrationStatus registrationStatus = chargerService.updateChgrInfo(chgrInfoUpdateDTO).isPresent()
-                ? RegistrationStatus.Accepted
-                : RegistrationStatus.Rejected;
+        RegistrationStatus registrationStatus = RegistrationStatus.Accepted;
+        try {
+            chargerService.updateChgrInfo(chgrInfoUpdateDTO);
+        } catch (ChargerNotFoundException e) {
+            registrationStatus = RegistrationStatus.Rejected;
+        }
 
         return new BootNotificationResponse(DateTimeUtil.currentDateTimeToISO8601(), interval, registrationStatus);
     }
