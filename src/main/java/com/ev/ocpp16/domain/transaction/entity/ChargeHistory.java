@@ -3,7 +3,7 @@ package com.ev.ocpp16.domain.transaction.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.ev.ocpp16.domain.chargepoint.entity.Charger;
+import com.ev.ocpp16.domain.chargepoint.entity.ChargerConnector;
 import com.ev.ocpp16.domain.common.entity.BaseTimeEntity;
 import com.ev.ocpp16.domain.member.entity.Member;
 import com.ev.ocpp16.domain.transaction.entity.enums.ChargeStep;
@@ -49,21 +49,21 @@ public class ChargeHistory extends BaseTimeEntity {
     private ChargeStep chargeStep;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "charger_id", nullable = false)
-    private Charger charger;
+    @JoinColumn(name = "charger_connector_id", nullable = false)
+    private ChargerConnector chargerConnector;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     public ChargeHistory(LocalDateTime startTime, LocalDateTime endTime, BigDecimal totalMeterValue,
-            BigDecimal totalPrice, ChargeStep chargeStep, Charger charger, Member member) {
+            BigDecimal totalPrice, ChargeStep chargeStep, ChargerConnector chargerConnector, Member member) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.totalMeterValue = totalMeterValue;
         this.totalPrice = totalPrice;
         this.chargeStep = chargeStep;
-        this.charger = charger;
+        this.chargerConnector = chargerConnector;
         this.member = member;
     }
 

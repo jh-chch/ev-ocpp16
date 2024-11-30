@@ -13,6 +13,7 @@ import org.springframework.web.socket.WebSocketSession;
 import com.ev.ocpp16.domain.chargepoint.exception.ChargerConnectorNotFoundException;
 import com.ev.ocpp16.domain.chargepoint.exception.ChargerNotFoundException;
 import com.ev.ocpp16.domain.member.exception.MemberNotFoundException;
+import com.ev.ocpp16.domain.transaction.exception.ChargeHistoryNotFoundException;
 import com.ev.ocpp16.domain.transaction.exception.ChargerErrorNotFoundException;
 import com.ev.ocpp16.websocket.dto.CallRequest;
 import com.ev.ocpp16.websocket.dto.CallResponse;
@@ -55,6 +56,8 @@ public class CallMessageProcessor<T, R> implements MessageProcessor {
             throw new OcppException(callRequest.getUniqueId(), ErrorCode.GENERIC_ERROR, e.getMessage());
         } catch (ChargerNotFoundException e) {
             throw new OcppException(callRequest.getUniqueId(), ErrorCode.GENERIC_ERROR, e.getMessage());
+        } catch (ChargeHistoryNotFoundException e) {
+            throw new OcppException(callRequest.getUniqueId(), ErrorCode.INTERNAL_ERROR, e.getMessage());
         } catch (OcppException e) {
             throw e;
         } catch (Exception e) {
