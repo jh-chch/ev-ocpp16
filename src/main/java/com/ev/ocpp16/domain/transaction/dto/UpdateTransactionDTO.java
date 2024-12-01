@@ -10,7 +10,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class SaveTransactionDetailDTO {
+public class UpdateTransactionDTO {
     Integer transactionId;
     LocalDateTime timestamp;
     BigDecimal meterValue;

@@ -56,10 +56,9 @@ public class ChargeHistory extends BaseTimeEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    public ChargeHistory(LocalDateTime startTime, LocalDateTime endTime, BigDecimal totalMeterValue,
+    public ChargeHistory(LocalDateTime startTime, BigDecimal totalMeterValue,
             BigDecimal totalPrice, ChargeStep chargeStep, ChargerConnector chargerConnector, Member member) {
         this.startTime = startTime;
-        this.endTime = endTime;
         this.totalMeterValue = totalMeterValue;
         this.totalPrice = totalPrice;
         this.chargeStep = chargeStep;
@@ -67,9 +66,12 @@ public class ChargeHistory extends BaseTimeEntity {
         this.member = member;
     }
 
-    public void changeChgrHst(LocalDateTime endTime, BigDecimal totalMeterValue, ChargeStep chargeStep) {
+    public void changeChgrHst(LocalDateTime endTime, ChargeStep chargeStep) {
         this.endTime = endTime;
-        this.totalMeterValue = totalMeterValue;
         this.chargeStep = chargeStep;
+    }
+
+    public void calculateTotalMeterValue(BigDecimal newMeterValue, BigDecimal lastMeterValue) {
+        this.totalMeterValue = this.totalMeterValue.add(newMeterValue).subtract(lastMeterValue);
     }
 }

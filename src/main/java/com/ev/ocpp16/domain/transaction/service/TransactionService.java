@@ -16,12 +16,12 @@ import com.ev.ocpp16.domain.member.entity.Member;
 import com.ev.ocpp16.domain.member.exception.MemberNotFoundException;
 import com.ev.ocpp16.domain.member.repository.MemberRepository;
 import com.ev.ocpp16.domain.transaction.dto.SaveTransactionDetailDTO;
+import com.ev.ocpp16.domain.transaction.dto.UpdateTransactionDTO;
 import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.SaveTransactionDTO;
 import com.ev.ocpp16.domain.transaction.entity.ChargeHistory;
 import com.ev.ocpp16.domain.transaction.entity.ChargeHistoryDetail;
 import com.ev.ocpp16.domain.transaction.entity.ChargerError;
 import com.ev.ocpp16.domain.transaction.entity.ChargerErrorHistory;
-import com.ev.ocpp16.domain.transaction.entity.enums.ChargeStep;
 import com.ev.ocpp16.domain.transaction.exception.ChargeHistoryNotFoundException;
 import com.ev.ocpp16.domain.transaction.exception.ChargerErrorNotFoundException;
 import com.ev.ocpp16.domain.transaction.repository.ChargeHistoryDetailRepository;
@@ -85,39 +85,65 @@ public class TransactionService {
 	// 충전 이력 저장
 	public Integer saveTransaction(SaveTransactionDTO dto)
 			throws MemberNotFoundException, ChargerConnectorNotFoundException {
+		// 충전 이력 생성
 		ChargeHistory chargeHistory = makeChargeHistory(dto);
-		ChargeHistory saveChargeHistory = chargeHistoryRepository.save(chargeHistory);
-		return saveChargeHistory.getId();
+
+		// 충전 이력 저장
+		return chargeHistoryRepository.save(chargeHistory).getId();
 	}
 
-	// 충전 이력 상세 저장
-	public void saveTransactionDetail(SaveTransactionDetailDTO dto)
-			throws MemberNotFoundException, ChargerConnectorNotFoundException, ChargeHistoryNotFoundException {
-		ChargeHistory chargeHistory = chargeHistoryRepository.findById(dto.getTransactionId())
-				.orElseThrow(() -> new ChargeHistoryNotFoundException(dto.getTransactionId()));
-
-		ChargeHistoryDetail chargeHistoryDetail = new ChargeHistoryDetail(ChargeStep.START_TRANSACTION,
-				dto.getTimestamp(), dto.getMeterValue(), BigDecimal.ZERO, chargeHistory);
-		chargeHistoryDetailRepository.save(chargeHistoryDetail);
-	}
-
+	// 충전 이력 생성
 	private ChargeHistory makeChargeHistory(SaveTransactionDTO dto)
 			throws MemberNotFoundException, ChargerConnectorNotFoundException {
+		// 회원 조회
 		Member findMember = memberRepository.findByIdToken(dto.getIdToken())
 				.orElseThrow(() -> new MemberNotFoundException(dto.getIdToken()));
 
+		// 충전기 커넥터 조회
 		ChargerConnector findChgrConn = chargerConnectorRepository
 				.findByChargerIdAndConnectorId(dto.getChgrId(), dto.getConnectorId())
 				.orElseThrow(() -> new ChargerConnectorNotFoundException(dto.getChgrId(), dto.getConnectorId()));
 
 		return new ChargeHistory(
 				dto.getTimestamp(),
-				dto.getTimestamp(),
 				dto.getMeterValue(),
 				BigDecimal.ZERO,
-				ChargeStep.START_TRANSACTION,
+				dto.getChargeStep(),
 				findChgrConn,
 				findMember);
 	}
 
+	// 충전 이력 상세 저장
+	public void saveTransactionDetail(SaveTransactionDetailDTO dto)
+			throws MemberNotFoundException, ChargerConnectorNotFoundException, ChargeHistoryNotFoundException {
+		// 충전 이력 조회
+		ChargeHistory findChgrHst = chargeHistoryRepository.findById(dto.getTransactionId())
+				.orElseThrow(() -> new ChargeHistoryNotFoundException(dto.getTransactionId()));
+
+		// 충전 이력 상세 저장
+		ChargeHistoryDetail chargeHistoryDetail = new ChargeHistoryDetail(
+				dto.getChargeStep(), dto.getTimestamp(),
+				dto.getMeterValue(), BigDecimal.ZERO, findChgrHst);
+
+		chargeHistoryDetailRepository.save(chargeHistoryDetail);
+	}
+
+	// 충전 이력 업데이트
+	public void updateTransaction(UpdateTransactionDTO dto) throws ChargeHistoryNotFoundException {
+		// 충전 이력 조회
+		ChargeHistory findChgrHst = chargeHistoryRepository.findById(dto.getTransactionId())
+				.orElseThrow(() -> new ChargeHistoryNotFoundException(dto.getTransactionId()));
+
+		// 가장 최근 충전량 조회
+		BigDecimal findMeterValue = chargeHistoryDetailRepository
+				.findFirstByChargeHistoryIdOrderByIdDesc(dto.getTransactionId())
+				.map(ChargeHistoryDetail::getMeterValue)
+				.orElse(BigDecimal.ZERO);
+
+		// 총 충전량 업데이트
+		findChgrHst.calculateTotalMeterValue(dto.getMeterValue(), findMeterValue);
+
+		// 충전 이력 업데이트
+		findChgrHst.changeChgrHst(dto.getTimestamp(), dto.getChargeStep());
+	}
 }
