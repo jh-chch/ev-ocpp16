@@ -15,7 +15,6 @@ import com.ev.ocpp16.domain.chargepoint.entity.enums.ChgrConnSt;
 import com.ev.ocpp16.domain.chargepoint.service.ChargerService;
 import com.ev.ocpp16.websocket.dto.CallRequest;
 import com.ev.ocpp16.websocket.dto.CallResponse;
-import com.ev.ocpp16.websocket.dto.PathInfo;
 import com.ev.ocpp16.websocket.exception.ErrorCode;
 import com.ev.ocpp16.websocket.exception.OcppException;
 import com.ev.ocpp16.websocket.exception.OcppExceptionHandler;
@@ -49,9 +48,6 @@ public class OcppWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         log.info("afterConnectionEstablished");
         sessionManager.addSession(session);
-
-        // 소켓 연결 시 충전기 상태 CONNECTED 상태로 변경
-        chargerService.updateChgrConnSt(PathInfo.from(session).getChgrId(), ChgrConnSt.CONNECTED);
     }
 
     @Override
@@ -93,12 +89,7 @@ public class OcppWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         log.info("afterConnectionClosed");
-
-        // 소켓 연결 종료 시 충전기 상태 DISCONNECTED 상태로 변경
-        chargerService.updateChgrConnSt(PathInfo.from(session).getChgrId(), ChgrConnSt.DISCONNECTED);
-
         sessionManager.removeSession(session);
-        MDC.remove((String) session.getAttributes().get(MDC_KEY));
     }
 
     private JsonNode parseJsonNode(TextMessage message) {
