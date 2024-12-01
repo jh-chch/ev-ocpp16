@@ -1,6 +1,6 @@
 package com.ev.ocpp16.domain.chargepoint.entity;
 
-import com.ev.ocpp16.domain.chargepoint.dto.ChgrInfoUpdateDTO;
+import com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.ChgrInfoUpdateDTO;
 import com.ev.ocpp16.domain.chargepoint.entity.enums.ChgrConnSt;
 import com.ev.ocpp16.domain.common.entity.BaseTimeEntity;
 

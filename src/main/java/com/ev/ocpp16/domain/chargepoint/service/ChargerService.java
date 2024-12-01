@@ -3,8 +3,8 @@ package com.ev.ocpp16.domain.chargepoint.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ev.ocpp16.domain.chargepoint.dto.ChgrConnStUpdateDTO;
-import com.ev.ocpp16.domain.chargepoint.dto.ChgrInfoUpdateDTO;
+import com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.ChgrConnStUpdateDTO;
+import com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.ChgrInfoUpdateDTO;
 import com.ev.ocpp16.domain.chargepoint.entity.Charger;
 import com.ev.ocpp16.domain.chargepoint.entity.ChargerConnector;
 import com.ev.ocpp16.domain.chargepoint.entity.enums.ChgrConnSt;

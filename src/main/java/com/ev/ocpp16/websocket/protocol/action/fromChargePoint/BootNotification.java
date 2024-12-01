@@ -5,7 +5,7 @@ import static com.ev.ocpp16.websocket.utils.Constants.USER_TYPE_USER;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.ev.ocpp16.domain.chargepoint.dto.ChgrInfoUpdateDTO;
+import com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.ChgrInfoUpdateDTO;
 import com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.request.BootNotificationRequest;
 import com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.response.BootNotificationResponse;
 import com.ev.ocpp16.domain.chargepoint.exception.ChargerNotFoundException;

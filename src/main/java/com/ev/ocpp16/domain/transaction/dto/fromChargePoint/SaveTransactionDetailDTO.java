@@ -1,4 +1,4 @@
-package com.ev.ocpp16.domain.transaction.dto;
+package com.ev.ocpp16.domain.transaction.dto.fromChargePoint;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -10,7 +10,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class UpdateTransactionDTO {
+public class SaveTransactionDetailDTO {
     Integer transactionId;
     LocalDateTime timestamp;
     BigDecimal meterValue;

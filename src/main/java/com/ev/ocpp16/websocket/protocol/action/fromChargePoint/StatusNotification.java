@@ -5,8 +5,8 @@ import static com.ev.ocpp16.websocket.utils.Constants.USER_TYPE_USER;
 
 import org.springframework.stereotype.Component;
 
-import com.ev.ocpp16.domain.chargepoint.dto.ChgrConnStUpdateDTO;
-import com.ev.ocpp16.domain.chargepoint.dto.ChgrErrorHstSaveDTO;
+import com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.ChgrConnStUpdateDTO;
+import com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.ChgrErrorHstSaveDTO;
 import com.ev.ocpp16.domain.chargepoint.exception.ChargerConnectorNotFoundException;
 import com.ev.ocpp16.domain.chargepoint.service.ChargerService;
 import com.ev.ocpp16.domain.common.dto.ChargePointErrorCode;

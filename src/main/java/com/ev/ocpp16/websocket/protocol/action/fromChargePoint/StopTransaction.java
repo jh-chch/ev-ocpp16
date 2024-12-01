@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ev.ocpp16.domain.chargepoint.exception.ChargerConnectorNotFoundException;
 import com.ev.ocpp16.domain.member.exception.MemberNotFoundException;
-import com.ev.ocpp16.domain.transaction.dto.SaveTransactionDetailDTO;
-import com.ev.ocpp16.domain.transaction.dto.UpdateTransactionDTO;
+import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.SaveTransactionDetailDTO;
+import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.UpdateTransactionDTO;
 import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.request.StopTransactionRequest;
 import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.response.StopTransactionResponse;
 import com.ev.ocpp16.domain.transaction.entity.enums.ChargeStep;

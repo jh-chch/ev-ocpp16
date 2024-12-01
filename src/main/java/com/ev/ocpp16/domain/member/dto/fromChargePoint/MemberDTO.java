@@ -1,4 +1,4 @@
-package com.ev.ocpp16.domain.member.dto;
+package com.ev.ocpp16.domain.member.dto.fromChargePoint;
 
 import com.ev.ocpp16.domain.member.entity.Member;
 import com.ev.ocpp16.domain.member.entity.enums.AccountStatus;
