@@ -106,6 +106,7 @@ public class TransactionService {
 
 		return new ChargeHistory(
 				dto.getTimestamp(),
+				dto.getTimestamp(),
 				dto.getMeterValue(),
 				BigDecimal.ZERO,
 				dto.getChargeStep(),
