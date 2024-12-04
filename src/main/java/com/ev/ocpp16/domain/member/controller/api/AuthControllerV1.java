@@ -17,8 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ev.ocpp16.config.security.JwtUtil;
 import com.ev.ocpp16.domain.common.exception.ApiException;
-import com.ev.ocpp16.domain.member.dto.api.MemberRegisterRequest;
-import com.ev.ocpp16.domain.member.dto.api.MemberRegisterResponse;
+import com.ev.ocpp16.domain.member.dto.api.MemberRegisterDTO;
 import com.ev.ocpp16.domain.member.service.MemberService;
 
 import lombok.RequiredArgsConstructor;
@@ -64,7 +63,7 @@ public class AuthControllerV1 {
 
     // 일반 회원 회원가입
     @PostMapping("/register")
-    public ResponseEntity<MemberRegisterResponse> register(@Validated @RequestBody MemberRegisterRequest request) {
+    public ResponseEntity<MemberRegisterDTO.Response> register(@Validated @RequestBody MemberRegisterDTO.Request request) {
         return ResponseEntity.ok(memberService.registerMember(request));
     }
 }

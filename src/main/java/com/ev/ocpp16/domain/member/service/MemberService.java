@@ -8,8 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ev.ocpp16.domain.common.exception.ApiException;
 import com.ev.ocpp16.domain.common.exception.ApiExceptionStatus;
-import com.ev.ocpp16.domain.member.dto.api.MemberRegisterRequest;
-import com.ev.ocpp16.domain.member.dto.api.MemberRegisterResponse;
+import com.ev.ocpp16.domain.member.dto.api.MemberRegisterDTO;
 import com.ev.ocpp16.domain.member.dto.fromChargePoint.MemberDTO;
 import com.ev.ocpp16.domain.member.entity.enums.Roles;
 import com.ev.ocpp16.domain.member.repository.MemberRepository;
@@ -30,7 +29,7 @@ public class MemberService {
     }
 
     // 회원 등록
-    public MemberRegisterResponse registerMember(MemberRegisterRequest request) {
+    public MemberRegisterDTO.Response registerMember(MemberRegisterDTO.Request request) {
         if (memberRepository.existsByIdToken(request.getIdToken())) {
             throw new ApiException(ApiExceptionStatus.DUPLICATE_ID_TOKEN);
         }
@@ -41,8 +40,8 @@ public class MemberService {
 
         request.setPassword(passwordEncoder.encode(request.getPassword()));
         memberRepository.save(request.toEntity(Roles.ROLE_USER));
-
-        return new MemberRegisterResponse(request.getIdToken(), request.getUsername(), request.getEmail());
+        
+        return new MemberRegisterDTO.Response(request.getIdToken(), request.getUsername(), request.getEmail());
     }
 
 }
