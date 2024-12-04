@@ -24,7 +24,7 @@ import com.ev.ocpp16.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthControllerV1 {
 
@@ -33,7 +33,7 @@ public class AuthControllerV1 {
 
     private final MemberService memberService;
 
-    @PostMapping("/v1/token")
+    @PostMapping("/token")
     public ResponseEntity<Map<String, String>> generateToken(
             @RequestHeader(value = "Authorization", required = false) String authorization) {
         final String BASIC_PREFIX = "Basic ";
@@ -63,7 +63,7 @@ public class AuthControllerV1 {
     }
 
     // 일반 회원 회원가입
-    @PostMapping("/v1/register")
+    @PostMapping("/register")
     public ResponseEntity<MemberRegisterResponse> register(@Validated @RequestBody MemberRegisterRequest request) {
         return ResponseEntity.ok(memberService.registerMember(request));
     }

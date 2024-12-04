@@ -54,10 +54,10 @@ public class SecurityConfig {
 	@Order(3)
 	public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
 		return http
-				.securityMatcher("/api/**")
+				.securityMatcher("/api/v1/**")
 				.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/api/auth/**").permitAll()
+						.requestMatchers("/api/v1/auth/**").permitAll()
 						.anyRequest().hasRole("ADMIN"))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
