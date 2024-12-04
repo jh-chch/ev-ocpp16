@@ -1,5 +1,12 @@
 package com.ev.ocpp16.domain.member.entity;
 
+import java.util.Collection;
+import java.util.Collections;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import com.ev.ocpp16.domain.common.entity.BaseTimeEntity;
 import com.ev.ocpp16.domain.member.entity.enums.AccountStatus;
 import com.ev.ocpp16.domain.member.entity.enums.Roles;
@@ -19,7 +26,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "member")
 @Getter
 @NoArgsConstructor
-public class Member extends BaseTimeEntity {
+public class Member extends BaseTimeEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,5 +61,30 @@ public class Member extends BaseTimeEntity {
         this.email = email;
         this.roles = roles;
         this.accountStatus = accountStatus;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority(roles.name()));
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return accountStatus != AccountStatus.LOCKED;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return accountStatus == AccountStatus.ACTIVE;
     }
 }
