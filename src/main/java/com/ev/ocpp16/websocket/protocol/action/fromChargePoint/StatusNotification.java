@@ -10,12 +10,12 @@ import com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.ChgrErrorHstSaveDTO;
 import com.ev.ocpp16.domain.chargepoint.exception.ChargerConnectorNotFoundException;
 import com.ev.ocpp16.domain.chargepoint.service.ChargerService;
 import com.ev.ocpp16.domain.common.dto.ChargePointErrorCode;
-import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.request.StatusNotificationRequest;
-import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.response.StatusNotificationResponse;
 import com.ev.ocpp16.domain.transaction.exception.ChargerErrorNotFoundException;
 import com.ev.ocpp16.domain.transaction.service.TransactionService;
 import com.ev.ocpp16.websocket.dto.CallRequest;
 import com.ev.ocpp16.websocket.dto.PathInfo;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.request.StatusNotificationRequest;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.response.StatusNotificationResponse;
 import com.ev.ocpp16.websocket.protocol.action.ActionHandler;
 
 import lombok.RequiredArgsConstructor;

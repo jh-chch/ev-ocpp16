@@ -6,12 +6,12 @@ import org.springframework.stereotype.Component;
 
 import com.ev.ocpp16.domain.common.dto.AuthorizationStatus;
 import com.ev.ocpp16.domain.common.dto.IdTagInfo;
-import com.ev.ocpp16.domain.member.dto.fromChargePoint.request.AuthorizeRequest;
-import com.ev.ocpp16.domain.member.dto.fromChargePoint.response.AuthorizeResponse;
 import com.ev.ocpp16.domain.member.entity.enums.AccountStatus;
 import com.ev.ocpp16.domain.member.service.MemberService;
 import com.ev.ocpp16.websocket.dto.CallRequest;
 import com.ev.ocpp16.websocket.dto.PathInfo;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.request.AuthorizeRequest;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.response.AuthorizeResponse;
 import com.ev.ocpp16.websocket.protocol.action.ActionHandler;
 
 import lombok.RequiredArgsConstructor;

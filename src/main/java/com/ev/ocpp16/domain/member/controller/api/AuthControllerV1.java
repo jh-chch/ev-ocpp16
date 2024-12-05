@@ -3,7 +3,6 @@ package com.ev.ocpp16.domain.member.controller.api;
 import static com.ev.ocpp16.domain.common.exception.ApiExceptionStatus.INVALID_AUTH_HEADER;
 
 import java.util.Base64;
-import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,8 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ev.ocpp16.config.security.JwtUtil;
+import com.ev.ocpp16.config.security.TokenResponse;
 import com.ev.ocpp16.domain.common.exception.ApiException;
-import com.ev.ocpp16.domain.member.dto.api.MemberRegisterDTO;
+import com.ev.ocpp16.domain.member.dto.api.MemberSaveDTO;
 import com.ev.ocpp16.domain.member.service.MemberService;
 
 import lombok.RequiredArgsConstructor;
@@ -29,11 +29,10 @@ public class AuthControllerV1 {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
-
     private final MemberService memberService;
 
     @PostMapping("/token")
-    public ResponseEntity<Map<String, String>> generateToken(
+    public ResponseEntity<TokenResponse> generateToken(
             @RequestHeader(value = "Authorization", required = false) String authorization) {
         final String BASIC_PREFIX = "Basic ";
 
@@ -42,7 +41,7 @@ public class AuthControllerV1 {
         }
 
         var credentials = authorization.substring(BASIC_PREFIX.length());
-        var decodedCredentials = new String(Base64.getDecoder().decode(credentials.trim()));    
+        var decodedCredentials = new String(Base64.getDecoder().decode(credentials.trim()));
         var parts = decodedCredentials.split(":", 2);
 
         if (parts.length != 2) {
@@ -56,14 +55,14 @@ public class AuthControllerV1 {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
         // JWT 토큰 생성
-        String token = jwtUtil.generateToken(email);
+        TokenResponse tokenResponse = jwtUtil.generateToken(email);
 
-        return ResponseEntity.ok(Map.of("token", token));
+        return ResponseEntity.ok(tokenResponse);
     }
 
     // 일반 회원 회원가입
-    @PostMapping("/register")
-    public ResponseEntity<MemberRegisterDTO.Response> register(@Validated @RequestBody MemberRegisterDTO.Request request) {
-        return ResponseEntity.ok(memberService.registerMember(request));
+    @PostMapping("/member")
+    public ResponseEntity<MemberSaveDTO.Response> saveMember(@Validated @RequestBody MemberSaveDTO.Request request) {
+        return ResponseEntity.ok(memberService.saveMember(request));
     }
 }

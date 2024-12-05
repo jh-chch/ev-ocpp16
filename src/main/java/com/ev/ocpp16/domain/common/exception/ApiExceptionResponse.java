@@ -9,7 +9,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @Builder
-public class ApiErrorResponse {
+public class ApiExceptionResponse {
     private final LocalDateTime timestamp;
     private final String detail;
     private final String errorCode;

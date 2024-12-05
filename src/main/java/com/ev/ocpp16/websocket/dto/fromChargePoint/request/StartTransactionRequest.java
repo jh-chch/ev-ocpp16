@@ -1,4 +1,4 @@
-package com.ev.ocpp16.domain.transaction.dto.fromChargePoint.request;
+package com.ev.ocpp16.websocket.dto.fromChargePoint.request;
 
 import lombok.Getter;
 import lombok.ToString;

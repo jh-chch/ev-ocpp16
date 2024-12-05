@@ -15,9 +15,9 @@ import com.ev.ocpp16.domain.common.dto.ChargePointStatus;
 import com.ev.ocpp16.domain.member.entity.Member;
 import com.ev.ocpp16.domain.member.exception.MemberNotFoundException;
 import com.ev.ocpp16.domain.member.repository.MemberRepository;
-import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.SaveTransactionDTO;
-import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.SaveTransactionDetailDTO;
-import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.UpdateTransactionDTO;
+import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.TransactionSaveDTO;
+import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.TransactionDetailSaveDTO;
+import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.TransactionUpdateDTO;
 import com.ev.ocpp16.domain.transaction.entity.ChargeHistory;
 import com.ev.ocpp16.domain.transaction.entity.ChargeHistoryDetail;
 import com.ev.ocpp16.domain.transaction.entity.ChargerError;
@@ -83,7 +83,7 @@ public class TransactionService {
 	}
 
 	// 충전 이력 저장
-	public Integer saveTransaction(SaveTransactionDTO dto)
+	public Integer saveTransaction(TransactionSaveDTO dto)
 			throws MemberNotFoundException, ChargerConnectorNotFoundException {
 		// 충전 이력 생성
 		ChargeHistory chargeHistory = makeChargeHistory(dto);
@@ -93,7 +93,7 @@ public class TransactionService {
 	}
 
 	// 충전 이력 생성
-	private ChargeHistory makeChargeHistory(SaveTransactionDTO dto)
+	private ChargeHistory makeChargeHistory(TransactionSaveDTO dto)
 			throws MemberNotFoundException, ChargerConnectorNotFoundException {
 		// 회원 조회
 		Member findMember = memberRepository.findByIdToken(dto.getIdToken())
@@ -115,7 +115,7 @@ public class TransactionService {
 	}
 
 	// 충전 이력 상세 저장
-	public void saveTransactionDetail(SaveTransactionDetailDTO dto)
+	public void saveTransactionDetail(TransactionDetailSaveDTO dto)
 			throws MemberNotFoundException, ChargerConnectorNotFoundException, ChargeHistoryNotFoundException {
 		// 충전 이력 조회
 		ChargeHistory findChgrHst = chargeHistoryRepository.findById(dto.getTransactionId())
@@ -130,7 +130,7 @@ public class TransactionService {
 	}
 
 	// 충전 이력 업데이트
-	public void updateTransaction(UpdateTransactionDTO dto) throws ChargeHistoryNotFoundException {
+	public void updateTransaction(TransactionUpdateDTO dto) throws ChargeHistoryNotFoundException {
 		// 충전 이력 조회
 		ChargeHistory findChgrHst = chargeHistoryRepository.findById(dto.getTransactionId())
 				.orElseThrow(() -> new ChargeHistoryNotFoundException(dto.getTransactionId()));

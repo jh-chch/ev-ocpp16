@@ -10,8 +10,10 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class UpdateTransactionDTO {
-    Integer transactionId;
+public class TransactionSaveDTO {
+    String idToken;
+    Long chgrId;
+    Integer connectorId;
     LocalDateTime timestamp;
     BigDecimal meterValue;
     ChargeStep chargeStep;

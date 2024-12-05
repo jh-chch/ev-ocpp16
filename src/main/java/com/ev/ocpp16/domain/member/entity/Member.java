@@ -21,13 +21,17 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "member")
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Member extends BaseTimeEntity implements UserDetails {
 
     @Id
@@ -57,11 +61,11 @@ public class Member extends BaseTimeEntity implements UserDetails {
     private Address address;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "roles", nullable = false, columnDefinition = "enum('ADMIN','USER') default 'USER'")
+    @Column(name = "roles", nullable = false, columnDefinition = "enum('ROLE_ADMIN','ROLE_USER') default 'ROLE_USER'")
     private Roles roles;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "account_status", nullable = false, columnDefinition = "enum('ACTIVE','LOCKED','DISABLED') default 'ACTIVE'")
+    @Column(name = "account_status", nullable = false, columnDefinition = "enum('ACTIVE','LOCKED','INACTIVE') default 'ACTIVE'")
     private AccountStatus accountStatus;
 
     @Override

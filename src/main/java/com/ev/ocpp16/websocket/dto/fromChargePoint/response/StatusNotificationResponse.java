@@ -1,4 +1,4 @@
-package com.ev.ocpp16.domain.transaction.dto.fromChargePoint.response;
+package com.ev.ocpp16.websocket.dto.fromChargePoint.response;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 

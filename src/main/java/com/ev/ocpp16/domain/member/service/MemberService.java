@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ev.ocpp16.domain.common.exception.ApiException;
 import com.ev.ocpp16.domain.common.exception.ApiExceptionStatus;
-import com.ev.ocpp16.domain.member.dto.api.MemberRegisterDTO;
-import com.ev.ocpp16.domain.member.dto.fromChargePoint.MemberDTO;
+import com.ev.ocpp16.domain.member.dto.api.MemberSaveDTO;
+import com.ev.ocpp16.domain.member.dto.fromChargePoint.MemberQueryDTO;
 import com.ev.ocpp16.domain.member.entity.enums.Roles;
 import com.ev.ocpp16.domain.member.repository.MemberRepository;
 
@@ -23,13 +23,13 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public Optional<MemberDTO> getMemberByIdToken(String idToken) {
+    public Optional<MemberQueryDTO> getMemberByIdToken(String idToken) {
         return memberRepository.findByIdToken(idToken)
-                .map(MemberDTO::new);
+                .map(MemberQueryDTO::new);
     }
 
     // 회원 등록
-    public MemberRegisterDTO.Response registerMember(MemberRegisterDTO.Request request) {
+    public MemberSaveDTO.Response saveMember(MemberSaveDTO.Request request) {
         if (memberRepository.existsByIdToken(request.getIdToken())) {
             throw new ApiException(ApiExceptionStatus.DUPLICATE_ID_TOKEN);
         }
@@ -38,10 +38,18 @@ public class MemberService {
             throw new ApiException(ApiExceptionStatus.DUPLICATE_EMAIL);
         }
 
+        if (memberRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+            throw new ApiException(ApiExceptionStatus.DUPLICATE_PHONE_NUMBER);
+        }
+
+        if (memberRepository.existsByCarNumber(request.getCarNumber())) {
+            throw new ApiException(ApiExceptionStatus.DUPLICATE_CAR_NUMBER);
+        }
+
         request.setPassword(passwordEncoder.encode(request.getPassword()));
         memberRepository.save(request.toEntity(Roles.ROLE_USER));
         
-        return new MemberRegisterDTO.Response(request.getIdToken(), request.getUsername(), request.getEmail());
+        return new MemberSaveDTO.Response(request.getIdToken(), request.getUsername(), request.getEmail());
     }
 
 }

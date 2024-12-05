@@ -1,4 +1,4 @@
-package com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.response;
+package com.ev.ocpp16.websocket.dto.fromChargePoint.response;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

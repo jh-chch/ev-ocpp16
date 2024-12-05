@@ -7,14 +7,14 @@ import com.ev.ocpp16.domain.member.entity.enums.Roles;
 import lombok.Getter;
 
 @Getter
-public class MemberDTO {
+public class MemberQueryDTO {
     private String idToken;
     private String username;
     private String email;
     private Roles roles;
     private AccountStatus accountStatus;
 
-    public MemberDTO(Member member) {
+    public MemberQueryDTO(Member member) {
         this.idToken = member.getIdToken();
         this.username = member.getUsername();
         this.email = member.getEmail();

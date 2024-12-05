@@ -2,13 +2,15 @@ package com.ev.ocpp16.domain.member.entity.enums;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@NoArgsConstructor
 @Embeddable
 public class Address {
+    @NotBlank
     @Column(name = "zip_code", length = 10)
     private String zipCode;
 

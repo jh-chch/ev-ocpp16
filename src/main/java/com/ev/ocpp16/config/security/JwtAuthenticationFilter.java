@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.ev.ocpp16.domain.common.exception.ApiErrorResponse;
+import com.ev.ocpp16.domain.common.exception.ApiExceptionResponse;
 import com.ev.ocpp16.domain.common.exception.ApiExceptionStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -59,7 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (JwtException e) {
             var status = ApiExceptionStatus.INVALID_CREDENTIALS;
 
-            ApiErrorResponse errorResponse = ApiErrorResponse.builder()
+            ApiExceptionResponse errorResponse = ApiExceptionResponse.builder()
                     .timestamp(LocalDateTime.now())
                     .detail(status.getResultMessage())
                     .errorCode(status.getResultCode())

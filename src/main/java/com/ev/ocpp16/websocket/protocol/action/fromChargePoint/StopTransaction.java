@@ -10,15 +10,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ev.ocpp16.domain.chargepoint.exception.ChargerConnectorNotFoundException;
 import com.ev.ocpp16.domain.member.exception.MemberNotFoundException;
-import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.SaveTransactionDetailDTO;
-import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.UpdateTransactionDTO;
-import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.request.StopTransactionRequest;
-import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.response.StopTransactionResponse;
+import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.TransactionDetailSaveDTO;
+import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.TransactionUpdateDTO;
 import com.ev.ocpp16.domain.transaction.entity.enums.ChargeStep;
 import com.ev.ocpp16.domain.transaction.exception.ChargeHistoryNotFoundException;
 import com.ev.ocpp16.domain.transaction.service.TransactionService;
 import com.ev.ocpp16.websocket.dto.CallRequest;
 import com.ev.ocpp16.websocket.dto.PathInfo;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.request.StopTransactionRequest;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.response.StopTransactionResponse;
 import com.ev.ocpp16.websocket.protocol.action.ActionHandler;
 import com.ev.ocpp16.websocket.utils.DateTimeUtil;
 
@@ -43,22 +43,22 @@ public class StopTransaction implements ActionHandler<StopTransactionRequest, St
         BigDecimal meterValue = new BigDecimal(payload.getMeterStop());
 
         // 1. 충전 이력 업데이트
-        UpdateTransactionDTO updateTransactionDTO = new UpdateTransactionDTO(
+        TransactionUpdateDTO transactionUpdateDTO = new TransactionUpdateDTO(
                 payload.getTransactionId(),
                 timestamp,
                 meterValue,
                 ChargeStep.STOP_TRANSACTION);
 
-        transactionService.updateTransaction(updateTransactionDTO);
+        transactionService.updateTransaction(transactionUpdateDTO);
 
         // 2. 충전 이력 상세 저장
-        SaveTransactionDetailDTO saveTransactionDetailDTO = new SaveTransactionDetailDTO(
+        TransactionDetailSaveDTO transactionDetailSaveDTO = new TransactionDetailSaveDTO(
                 payload.getTransactionId(),
                 timestamp,
                 meterValue,
                 ChargeStep.STOP_TRANSACTION);
 
-        transactionService.saveTransactionDetail(saveTransactionDetailDTO);
+        transactionService.saveTransactionDetail(transactionDetailSaveDTO);
 
         return new StopTransactionResponse();
 

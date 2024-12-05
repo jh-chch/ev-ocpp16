@@ -4,10 +4,10 @@ import static com.ev.ocpp16.websocket.utils.Constants.USER_TYPE_USER;
 
 import org.springframework.stereotype.Component;
 
-import com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.request.HeartbeatRequest;
-import com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.response.HeartbeatResponse;
 import com.ev.ocpp16.websocket.dto.CallRequest;
 import com.ev.ocpp16.websocket.dto.PathInfo;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.request.HeartbeatRequest;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.response.HeartbeatResponse;
 import com.ev.ocpp16.websocket.protocol.action.ActionHandler;
 import com.ev.ocpp16.websocket.utils.DateTimeUtil;
 

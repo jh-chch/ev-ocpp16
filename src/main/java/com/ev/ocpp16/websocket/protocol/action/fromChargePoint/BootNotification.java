@@ -6,13 +6,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.ChgrInfoUpdateDTO;
-import com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.request.BootNotificationRequest;
-import com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.response.BootNotificationResponse;
 import com.ev.ocpp16.domain.chargepoint.exception.ChargerNotFoundException;
 import com.ev.ocpp16.domain.chargepoint.service.ChargerService;
 import com.ev.ocpp16.domain.common.dto.RegistrationStatus;
 import com.ev.ocpp16.websocket.dto.CallRequest;
 import com.ev.ocpp16.websocket.dto.PathInfo;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.request.BootNotificationRequest;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.response.BootNotificationResponse;
 import com.ev.ocpp16.websocket.protocol.action.ActionHandler;
 import com.ev.ocpp16.websocket.utils.DateTimeUtil;
 

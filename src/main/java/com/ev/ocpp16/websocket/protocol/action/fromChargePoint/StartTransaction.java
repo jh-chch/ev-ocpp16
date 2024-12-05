@@ -12,15 +12,15 @@ import com.ev.ocpp16.domain.chargepoint.exception.ChargerConnectorNotFoundExcept
 import com.ev.ocpp16.domain.common.dto.AuthorizationStatus;
 import com.ev.ocpp16.domain.common.dto.IdTagInfo;
 import com.ev.ocpp16.domain.member.exception.MemberNotFoundException;
-import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.SaveTransactionDTO;
-import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.SaveTransactionDetailDTO;
-import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.request.StartTransactionRequest;
-import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.response.StartTransactionResponse;
+import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.TransactionSaveDTO;
+import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.TransactionDetailSaveDTO;
 import com.ev.ocpp16.domain.transaction.entity.enums.ChargeStep;
 import com.ev.ocpp16.domain.transaction.exception.ChargeHistoryNotFoundException;
 import com.ev.ocpp16.domain.transaction.service.TransactionService;
 import com.ev.ocpp16.websocket.dto.CallRequest;
 import com.ev.ocpp16.websocket.dto.PathInfo;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.request.StartTransactionRequest;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.response.StartTransactionResponse;
 import com.ev.ocpp16.websocket.exception.ErrorCode;
 import com.ev.ocpp16.websocket.exception.OcppException;
 import com.ev.ocpp16.websocket.protocol.action.ActionHandler;
@@ -54,22 +54,22 @@ public class StartTransaction implements ActionHandler<StartTransactionRequest, 
         }
 
         // 충전 이력 저장
-        SaveTransactionDTO saveTransactionDTO = new SaveTransactionDTO(
+        TransactionSaveDTO transactionSaveDTO = new TransactionSaveDTO(
                 idTag, chgrId, connectorId,
                 timestamp,
                 BigDecimal.ZERO,
                 ChargeStep.START_TRANSACTION);
 
-        Integer transactionId = transactionService.saveTransaction(saveTransactionDTO);
+        Integer transactionId = transactionService.saveTransaction(transactionSaveDTO);
 
         // 충전 이력 상세 저장
-        SaveTransactionDetailDTO saveTransactionDetailDTO = new SaveTransactionDetailDTO(
+        TransactionDetailSaveDTO transactionDetailSaveDTO = new TransactionDetailSaveDTO(
                 transactionId,
                 timestamp,
                 meterValue,
                 ChargeStep.START_TRANSACTION);
 
-        transactionService.saveTransactionDetail(saveTransactionDetailDTO);
+        transactionService.saveTransactionDetail(transactionDetailSaveDTO);
 
         return new StartTransactionResponse(new IdTagInfo(AuthorizationStatus.Accepted), transactionId);
     }
