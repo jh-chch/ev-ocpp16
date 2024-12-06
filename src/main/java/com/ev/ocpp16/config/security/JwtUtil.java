@@ -1,6 +1,8 @@
 package com.ev.ocpp16.config.security;
 
 import java.security.Key;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import org.springframework.stereotype.Component;
@@ -16,8 +18,9 @@ public class JwtUtil {
     private final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
 
     public TokenResponse generateToken(String email) {
-        Date issuedAt = new Date(System.currentTimeMillis());
-        Date expiration = new Date(System.currentTimeMillis() + 1000 * 60 * 60); // 1 hour
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+        Date issuedAt = Date.from(now.toInstant());
+        Date expiration = Date.from(now.plusHours(1).toInstant());
 
         String token = Jwts.builder()
                 .setSubject(email)
@@ -50,7 +53,10 @@ public class JwtUtil {
     }
 
     private boolean isTokenExpired(String token) {
-        return extractClaims(token).getExpiration().before(new Date());
+        Date expiration = extractClaims(token).getExpiration();
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+        Date currentDate = Date.from(now.toInstant());
+        return expiration.before(currentDate);
     }
 
 }

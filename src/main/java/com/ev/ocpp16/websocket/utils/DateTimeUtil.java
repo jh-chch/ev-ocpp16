@@ -10,7 +10,7 @@ import java.time.format.DateTimeParseException;
 public class DateTimeUtil {
 
     public static String currentDateTimeToISO8601() {
-        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.of("Asia/Seoul"));
         DateTimeFormatter isoFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         return now.format(isoFormatter);
     }
