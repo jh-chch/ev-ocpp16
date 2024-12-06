@@ -8,8 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ev.ocpp16.domain.common.exception.ApiException;
 import com.ev.ocpp16.domain.common.exception.ApiExceptionStatus;
+import com.ev.ocpp16.domain.member.dto.api.MemberQueryDTO;
 import com.ev.ocpp16.domain.member.dto.api.MemberSaveDTO;
-import com.ev.ocpp16.domain.member.dto.fromChargePoint.MemberQueryDTO;
+import com.ev.ocpp16.domain.member.dto.fromChargePoint.ChargingMemberDTO;
 import com.ev.ocpp16.domain.member.entity.enums.Roles;
 import com.ev.ocpp16.domain.member.repository.MemberRepository;
 
@@ -23,9 +24,9 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public Optional<MemberQueryDTO> getMemberByIdToken(String idToken) {
+    public Optional<ChargingMemberDTO> getMemberForCharging(String idToken) {
         return memberRepository.findByIdToken(idToken)
-                .map(MemberQueryDTO::new);
+                .map(ChargingMemberDTO::new);
     }
 
     // 회원 등록
@@ -48,8 +49,14 @@ public class MemberService {
 
         request.setPassword(passwordEncoder.encode(request.getPassword()));
         memberRepository.save(request.toEntity(Roles.ROLE_USER));
-        
+
         return new MemberSaveDTO.Response(request.getIdToken(), request.getUsername(), request.getEmail());
     }
 
+    // 회원 조회
+    public MemberQueryDTO.Response getMemberByIdToken(String idToken) {
+        return memberRepository.findByIdToken(idToken)
+                .map(MemberQueryDTO.Response::new)
+                .orElseThrow(() -> new ApiException(ApiExceptionStatus.NOT_FOUND_MEMBER));
+    }
 }

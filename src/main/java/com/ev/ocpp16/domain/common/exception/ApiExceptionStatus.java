@@ -16,7 +16,9 @@ public enum ApiExceptionStatus {
     DUPLICATE_CAR_NUMBER(HttpStatus.BAD_REQUEST, "DUP_CAR_NUMBER", "중복된 차량번호입니다."),
 
     INVALID_SITE_NAME(HttpStatus.BAD_REQUEST, "INV_SITE_NAME", "존재하지 않는 사이트입니다."),
-    INVALID_SERIAL_NUMBER(HttpStatus.BAD_REQUEST, "INV_SERIAL_NUMBER", "존재하지 않는 충전기입니다.");
+    INVALID_SERIAL_NUMBER(HttpStatus.BAD_REQUEST, "INV_SERIAL_NUMBER", "존재하지 않는 충전기입니다."),
+
+    NOT_FOUND_MEMBER(HttpStatus.BAD_REQUEST, "NOT_FOUND_MEMBER", "존재하지 않는 회원입니다.");
 
     private final HttpStatus status;
     private final String resultCode;

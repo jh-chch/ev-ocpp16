@@ -30,7 +30,7 @@ public class Authorize implements ActionHandler<AuthorizeRequest, AuthorizeRespo
         String idToken = callRequest.getPayload().getIdTag().getIdToken();
 
         // idToken으로 회원 조회
-        return memberService.getMemberByIdToken(idToken)
+        return memberService.getMemberForCharging(idToken)
                 .map(member -> {
                     AuthorizationStatus status = AccountStatus.ACTIVE.equals(member.getAccountStatus())
                             ? AuthorizationStatus.Accepted
