@@ -13,7 +13,10 @@ public enum ApiExceptionStatus {
     DUPLICATE_ID_TOKEN(HttpStatus.BAD_REQUEST, "DUP_ID_TOKEN", "중복된 토큰입니다."),
     DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST, "DUP_EMAIL", "중복된 이메일입니다."),
     DUPLICATE_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "DUP_PHONE_NUMBER", "중복된 전화번호입니다."),
-    DUPLICATE_CAR_NUMBER(HttpStatus.BAD_REQUEST, "DUP_CAR_NUMBER", "중복된 차량번호입니다.");
+    DUPLICATE_CAR_NUMBER(HttpStatus.BAD_REQUEST, "DUP_CAR_NUMBER", "중복된 차량번호입니다."),
+
+    INVALID_SITE_NAME(HttpStatus.BAD_REQUEST, "INV_SITE_NAME", "존재하지 않는 사이트입니다."),
+    INVALID_SERIAL_NUMBER(HttpStatus.BAD_REQUEST, "INV_SERIAL_NUMBER", "존재하지 않는 충전기입니다.");
 
     private final HttpStatus status;
     private final String resultCode;

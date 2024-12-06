@@ -33,7 +33,7 @@ public class Charger extends BaseTimeEntity {
     @Column(name = "model", length = 30)
     private String model;
 
-    @Column(name = "serial_number", unique = true, length = 30)
+    @Column(name = "serial_number", unique = true, nullable = false, length = 30)
     private String serialNumber;
 
     @Column(name = "vendor", length = 30)

@@ -1,8 +1,10 @@
 package com.ev.ocpp16.domain.chargepoint.entity;
 
 import com.ev.ocpp16.domain.common.entity.BaseTimeEntity;
+import com.ev.ocpp16.domain.member.entity.enums.Address;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,16 +22,10 @@ public class Site extends BaseTimeEntity {
     @Column(name = "site_id")
     private Integer id;
 
-    @Column(name = "name", nullable = false, length = 30)
+    @Column(name = "name", unique = true, nullable = false, length = 30)
     private String name;
 
-    @Column(name = "city", length = 30)
-    private String city;
-
-    @Column(name = "street", length = 30)
-    private String street;
-
-    @Column(name = "zipcode", length = 30)
-    private String zipcode;
+    @Embedded
+    private Address address;
 
 }
