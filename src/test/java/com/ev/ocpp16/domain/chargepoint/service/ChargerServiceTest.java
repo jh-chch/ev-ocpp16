@@ -96,14 +96,14 @@ public class ChargerServiceTest {
         ChgrsQueryDTO.Response response = chargerService.getChgrsBySite(request);
 
         // then
-        assertThat(response.getData()).hasSize(2);
-        assertThat(response.getData())
+        assertThat(response.getChargers()).hasSize(2);
+        assertThat(response.getChargers())
                 .extracting("serialNumber")
                 .containsExactlyInAnyOrder("SN001", "SN002");
-        assertThat(response.getData())
+        assertThat(response.getChargers())
                 .extracting("model")
                 .containsExactlyInAnyOrder("TEST-MODEL-1", "TEST-MODEL-2");
-        assertThat(response.getData())
+        assertThat(response.getChargers())
                 .extracting("chargerConnectorStatus")
                 .containsExactlyInAnyOrder(ChgrConnSt.CONNECTED, ChgrConnSt.DISCONNECTED);
     }

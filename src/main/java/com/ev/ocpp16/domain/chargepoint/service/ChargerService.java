@@ -70,7 +70,7 @@ public class ChargerService {
     public ChgrsQueryDTO.Response getChgrsBySite(ChgrsQueryDTO.Request request) {
         return chargerApiRepository.findChgrsBySite(request)
                 .map(chgr -> {
-                    if (chgr.getData().isEmpty()) {
+                    if (chgr.getChargers().isEmpty()) {
                         throw new ApiException(ApiExceptionStatus.INVALID_SITE_NAME);
                     }
                     return chgr;

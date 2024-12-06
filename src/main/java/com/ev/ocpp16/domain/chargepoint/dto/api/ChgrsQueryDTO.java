@@ -22,10 +22,10 @@ public class ChgrsQueryDTO {
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Response {
-        private List<ChgrQueryDTO.Response> data;
-        
-        public static Response of(List<ChgrQueryDTO.Response> data) {
-            return new Response(data);
+        private List<ChgrQueryDTO.Response> chargers;
+
+        public static Response of(List<ChgrQueryDTO.Response> chargers) {
+            return new Response(chargers);
         }
     }
 }
