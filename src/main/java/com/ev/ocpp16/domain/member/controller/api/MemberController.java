@@ -24,7 +24,7 @@ public class MemberController {
      * GET /api/v1/members/{idToken}
      */
     @GetMapping("/{idToken}")
-    public ResponseEntity<MemberQueryDTO.Response> getMember(@PathVariable @Length(max = 36) String idToken) {
+    public ResponseEntity<MemberQueryDTO.Response> getMemberByIdToken(@PathVariable @Length(max = 36) String idToken) {
         return ResponseEntity.ok(memberService.getMemberByIdToken(idToken));
     }
 

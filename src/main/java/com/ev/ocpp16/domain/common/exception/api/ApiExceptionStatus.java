@@ -1,4 +1,4 @@
-package com.ev.ocpp16.domain.common.exception;
+package com.ev.ocpp16.domain.common.exception.api;
 
 import org.springframework.http.HttpStatus;
 

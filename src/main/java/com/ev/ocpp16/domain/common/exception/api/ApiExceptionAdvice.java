@@ -1,6 +1,7 @@
-package com.ev.ocpp16.domain.common.exception;
+package com.ev.ocpp16.domain.common.exception.api;
 
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class ApiExceptionAdvice {
 	public ResponseEntity<ApiExceptionResponse> handleApiException(ApiException e) {
 		var status = e.getApiExceptionStatus();
 		var errorResponse = ApiExceptionResponse.builder()
-				.timestamp(LocalDateTime.now())
+				.timestamp(ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime().withNano(0))
 				.detail(status.getResultMessage())
 				.errorCode(status.getResultCode())
 				.build();
@@ -40,7 +41,7 @@ public class ApiExceptionAdvice {
 			MethodArgumentNotValidException e) {
 		var fieldError = e.getBindingResult().getFieldError();
 		var errorResponse = ApiExceptionResponse.builder()
-				.timestamp(LocalDateTime.now())
+				.timestamp(ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime().withNano(0))
 				.detail(String.format("'%s' %s (Rejected value: %s)",
 						fieldError.getField(),
 						fieldError.getDefaultMessage(),
@@ -61,7 +62,7 @@ public class ApiExceptionAdvice {
 		var field = violation.getMethodParameter().getParameterName();
 
 		var errorResponse = ApiExceptionResponse.builder()
-				.timestamp(LocalDateTime.now())
+				.timestamp(ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime().withNano(0))
 				.detail(String.format("'%s' %s (Rejected value: %s)",
 						field,
 						violation.getResolvableErrors().get(0).getDefaultMessage(),
@@ -79,7 +80,7 @@ public class ApiExceptionAdvice {
 	public ResponseEntity<ApiExceptionResponse> handleNoResourceFoundException(
 			NoResourceFoundException e) {
 		var errorResponse = ApiExceptionResponse.builder()
-				.timestamp(LocalDateTime.now())
+				.timestamp(ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime().withNano(0))
 				.detail(String.format("Resource not found: %s %s",
 						e.getHttpMethod(),
 						e.getResourcePath()))
@@ -97,7 +98,7 @@ public class ApiExceptionAdvice {
 		var status = ApiExceptionStatus.INVALID_CREDENTIALS;
 
 		var errorResponse = ApiExceptionResponse.builder()
-				.timestamp(LocalDateTime.now())
+				.timestamp(ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime().withNano(0))
 				.detail(status.getResultMessage())
 				.errorCode(status.getResultCode())
 				.build();

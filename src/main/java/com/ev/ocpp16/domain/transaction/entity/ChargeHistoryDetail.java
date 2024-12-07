@@ -35,8 +35,8 @@ public class ChargeHistoryDetail extends BaseTimeEntity {
     @Column(name = "charge_step", nullable = false)
     private ChargeStep chargeStep;
 
-    @Column(name = "action_date")
-    private LocalDateTime actionDate;
+    @Column(name = "action_datetime")
+    private LocalDateTime actionDatetime;
 
     @Column(name = "meter_value", nullable = false, precision = 10, scale = 2)
     private BigDecimal meterValue;
@@ -48,10 +48,10 @@ public class ChargeHistoryDetail extends BaseTimeEntity {
     @JoinColumn(name = "charge_history_id", nullable = false)
     private ChargeHistory chargeHistory;
 
-    public ChargeHistoryDetail(ChargeStep chargeStep, LocalDateTime actionDate, BigDecimal meterValue,
+    public ChargeHistoryDetail(ChargeStep chargeStep, LocalDateTime actionDatetime, BigDecimal meterValue,
             BigDecimal unitPrice, ChargeHistory chargeHistory) {
         this.chargeStep = chargeStep;
-        this.actionDate = actionDate;
+        this.actionDatetime = actionDatetime;
         this.meterValue = meterValue;
         this.unitPrice = unitPrice;
         this.chargeHistory = chargeHistory;

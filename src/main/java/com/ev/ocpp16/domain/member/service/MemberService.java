@@ -6,8 +6,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ev.ocpp16.domain.common.exception.ApiException;
-import com.ev.ocpp16.domain.common.exception.ApiExceptionStatus;
+import com.ev.ocpp16.domain.common.exception.api.ApiException;
+import com.ev.ocpp16.domain.common.exception.api.ApiExceptionStatus;
 import com.ev.ocpp16.domain.member.dto.api.MemberQueryDTO;
 import com.ev.ocpp16.domain.member.dto.api.MemberSaveDTO;
 import com.ev.ocpp16.domain.member.dto.fromChargePoint.ChargingMemberDTO;

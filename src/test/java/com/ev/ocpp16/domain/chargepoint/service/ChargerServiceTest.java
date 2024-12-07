@@ -19,8 +19,8 @@ import com.ev.ocpp16.domain.chargepoint.entity.Site;
 import com.ev.ocpp16.domain.chargepoint.entity.enums.ChgrConnSt;
 import com.ev.ocpp16.domain.chargepoint.repository.ChargerRepository;
 import com.ev.ocpp16.domain.chargepoint.repository.SiteRepository;
-import com.ev.ocpp16.domain.common.exception.ApiException;
-import com.ev.ocpp16.domain.common.exception.ApiExceptionStatus;
+import com.ev.ocpp16.domain.common.exception.api.ApiException;
+import com.ev.ocpp16.domain.common.exception.api.ApiExceptionStatus;
 import com.ev.ocpp16.domain.member.entity.enums.Address;
 
 @SpringBootTest

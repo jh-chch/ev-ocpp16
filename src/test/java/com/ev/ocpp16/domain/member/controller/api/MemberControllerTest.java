@@ -19,7 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ev.ocpp16.domain.common.exception.ApiExceptionStatus;
+import com.ev.ocpp16.domain.common.exception.api.ApiExceptionStatus;
 import com.ev.ocpp16.domain.member.entity.Member;
 import com.ev.ocpp16.domain.member.entity.enums.AccountStatus;
 import com.ev.ocpp16.domain.member.entity.enums.Address;

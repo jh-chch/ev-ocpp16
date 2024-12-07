@@ -1,4 +1,4 @@
-package com.ev.ocpp16.domain.chargepoint.repository;
+package com.ev.ocpp16.domain.chargepoint.repository.api;
 
 import static com.ev.ocpp16.domain.chargepoint.entity.QCharger.charger;
 import static com.ev.ocpp16.domain.chargepoint.entity.QSite.site;

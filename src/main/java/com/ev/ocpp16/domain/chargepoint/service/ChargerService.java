@@ -12,12 +12,12 @@ import com.ev.ocpp16.domain.chargepoint.entity.ChargerConnector;
 import com.ev.ocpp16.domain.chargepoint.entity.enums.ChgrConnSt;
 import com.ev.ocpp16.domain.chargepoint.exception.ChargerConnectorNotFoundException;
 import com.ev.ocpp16.domain.chargepoint.exception.ChargerNotFoundException;
-import com.ev.ocpp16.domain.chargepoint.repository.ChargerApiRepository;
 import com.ev.ocpp16.domain.chargepoint.repository.ChargerConnectorRepository;
 import com.ev.ocpp16.domain.chargepoint.repository.ChargerRepository;
 import com.ev.ocpp16.domain.chargepoint.repository.SiteRepository;
-import com.ev.ocpp16.domain.common.exception.ApiException;
-import com.ev.ocpp16.domain.common.exception.ApiExceptionStatus;
+import com.ev.ocpp16.domain.chargepoint.repository.api.ChargerApiRepository;
+import com.ev.ocpp16.domain.common.exception.api.ApiException;
+import com.ev.ocpp16.domain.common.exception.api.ApiExceptionStatus;
 
 import lombok.RequiredArgsConstructor;
 

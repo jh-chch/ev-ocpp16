@@ -36,11 +36,11 @@ public class ChargerErrorHistory {
     @Column(name = "status", columnDefinition = "enum('active','resolved') default 'active'")
     private Status status;
 
-    @Column(name = "error_date", nullable = false, updatable = false, insertable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime errorDate;
+    @Column(name = "error_datetime", nullable = false, updatable = false, insertable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime errorDatetime;
 
-    @Column(name = "resolved_date")
-    private LocalDateTime resolvedDate;
+    @Column(name = "resolved_datetime")
+    private LocalDateTime resolvedDatetime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "charger_connector_id", nullable = false)
@@ -55,7 +55,7 @@ public class ChargerErrorHistory {
         this.chargerConnector = chargerConnector;
         this.chargerError = chargerError;
         this.status = Status.active;
-        this.errorDate = LocalDateTime.now();
+        this.errorDatetime = LocalDateTime.now();
     }
 
     public enum Status {

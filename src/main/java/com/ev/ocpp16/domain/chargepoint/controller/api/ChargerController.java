@@ -1,5 +1,6 @@
-package com.ev.ocpp16.domain.chargepoint.controller;
+package com.ev.ocpp16.domain.chargepoint.controller.api;
 
+import org.hibernate.validator.constraints.Length;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +28,7 @@ public class ChargerController {
      */
     @GetMapping("")
     public ResponseEntity<ChgrsQueryDTO.Response> getChgrsBySite(
-            @Validated@ModelAttribute ChgrsQueryDTO.Request request) {
+            @Validated @ModelAttribute ChgrsQueryDTO.Request request) {
         return ResponseEntity.ok(chargerService.getChgrsBySite(request));
     }
 
@@ -37,7 +38,7 @@ public class ChargerController {
      */
     @GetMapping("/{serialNumber}")
     public ResponseEntity<ChgrQueryDTO.Response> getChgrBySite(
-            @PathVariable(value = "serialNumber") String serialNumber,
+            @PathVariable(value = "serialNumber") @Length(max = 30) String serialNumber,
             @Validated @ModelAttribute ChgrQueryDTO.Request request) {
         return ResponseEntity.ok(chargerService.getChgrBySite(serialNumber, request));
     }

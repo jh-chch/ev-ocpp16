@@ -11,8 +11,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.ev.ocpp16.domain.common.exception.ApiExceptionResponse;
-import com.ev.ocpp16.domain.common.exception.ApiExceptionStatus;
+import com.ev.ocpp16.domain.common.exception.api.ApiExceptionResponse;
+import com.ev.ocpp16.domain.common.exception.api.ApiExceptionStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.JwtException;

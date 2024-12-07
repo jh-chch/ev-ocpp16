@@ -1,6 +1,6 @@
 package com.ev.ocpp16.domain.member.controller.api;
 
-import static com.ev.ocpp16.domain.common.exception.ApiExceptionStatus.INVALID_AUTH_HEADER;
+import static com.ev.ocpp16.domain.common.exception.api.ApiExceptionStatus.INVALID_AUTH_HEADER;
 
 import java.util.Base64;
 
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ev.ocpp16.config.security.JwtUtil;
 import com.ev.ocpp16.config.security.TokenResponse;
-import com.ev.ocpp16.domain.common.exception.ApiException;
+import com.ev.ocpp16.domain.common.exception.api.ApiException;
 import com.ev.ocpp16.domain.member.dto.api.MemberSaveDTO;
 import com.ev.ocpp16.domain.member.service.MemberService;
 
