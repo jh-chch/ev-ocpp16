@@ -1,33 +1,44 @@
 package com.ev.ocpp16.websocket.utils;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
+import java.util.Date;
 
 public class DateTimeUtil {
 
-    public static String currentDateTimeToISO8601() {
-        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.of("Asia/Seoul"));
-        DateTimeFormatter isoFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        return now.format(isoFormatter);
+    private static final ZoneId KOREA_ZONE = ZoneId.of("Asia/Seoul");
+
+    // iso8601 문자열을 ZonedDateTime으로 변환
+    public static ZonedDateTime iso8601ToZonedDateTime(String isoDate) {
+        return ZonedDateTime.parse(isoDate);
     }
 
-    public static LocalDateTime iso8601ToBasicDateTime(String isoDate) throws DateTimeParseException {
-        try {
-            return LocalDateTime.parse(isoDate);
-        } catch (DateTimeParseException e1) {
-            try {
-                // 시간대 정보가 있는 경우 (UTC 또는 오프셋)
-                ZonedDateTime zdt = ZonedDateTime.parse(isoDate);
-                return zdt.toLocalDateTime();
-            } catch (DateTimeParseException e2) {
-                // OffsetDateTime 처리
-                OffsetDateTime odt = OffsetDateTime.parse(isoDate);
-                return odt.toLocalDateTime();
-            }
-        }
+    // ZonedDateTime을 한국 시간 LocalDateTime으로 변환
+    public static LocalDateTime zonedDateTimeToKoreanLocalDateTime(ZonedDateTime zonedDateTime) {
+        return zonedDateTime
+                .withZoneSameInstant(KOREA_ZONE)
+                .toLocalDateTime();
+    }
+
+    // iso8601 문자열을 한국 시간 LocalDateTime으로 변환
+    public static LocalDateTime iso8601ToKoreanLocalDateTime(String isoDate) {
+        return zonedDateTimeToKoreanLocalDateTime(iso8601ToZonedDateTime(isoDate));
+    }
+
+    // 현재 시간(서울)을 iso8601 문자열로 반환
+    public static String currentKoreanLocalDateTimeToISO8601() {
+        return ZonedDateTime.now(KOREA_ZONE).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+    }
+
+    // 현재 시간(서울)을 LocalDateTime으로 반환
+    public static LocalDateTime currentKoreanLocalDateTime() {
+        return LocalDateTime.now(KOREA_ZONE);
+    }
+
+    // LocalDateTime(서울)를 Date로 반환
+    public static Date koreanLocalDateTimeToDate(LocalDateTime localDateTime) {
+        return Date.from(localDateTime.atZone(KOREA_ZONE).toInstant());
     }
 }

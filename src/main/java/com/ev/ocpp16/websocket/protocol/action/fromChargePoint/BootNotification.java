@@ -32,12 +32,15 @@ public class BootNotification implements ActionHandler<BootNotificationRequest, 
 
     @Override
     public BootNotificationResponse handleAction(PathInfo pathInfo, CallRequest<BootNotificationRequest> callRequest) {
-        ChgrInfoUpdateDTO chgrInfoUpdateDTO = new ChgrInfoUpdateDTO(pathInfo.getChgrId(),
-                callRequest.getPayload().getChargePointModel(),
-                callRequest.getPayload().getChargePointSerialNumber(),
-                callRequest.getPayload().getChargePointVendor(),
-                callRequest.getPayload().getFirmwareVersion());
+        ChgrInfoUpdateDTO chgrInfoUpdateDTO = ChgrInfoUpdateDTO.builder()
+                .chgrId(pathInfo.getChgrId())
+                .model(callRequest.getPayload().getChargePointModel())
+                .serialNumber(callRequest.getPayload().getChargePointSerialNumber())
+                .vendor(callRequest.getPayload().getChargePointVendor())
+                .firmwareVersion(callRequest.getPayload().getFirmwareVersion())
+                .build();
 
+        // 충전기 정보 업데이트 -> 충전기 정보 업데이트 실패 시 거절
         RegistrationStatus registrationStatus = RegistrationStatus.Accepted;
         try {
             chargerService.updateChgrInfo(chgrInfoUpdateDTO);
@@ -45,7 +48,10 @@ public class BootNotification implements ActionHandler<BootNotificationRequest, 
             registrationStatus = RegistrationStatus.Rejected;
         }
 
-        return new BootNotificationResponse(DateTimeUtil.currentDateTimeToISO8601(), interval, registrationStatus);
+        return new BootNotificationResponse(
+                DateTimeUtil.currentKoreanLocalDateTimeToISO8601(),
+                interval,
+                registrationStatus);
     }
 
     @Override

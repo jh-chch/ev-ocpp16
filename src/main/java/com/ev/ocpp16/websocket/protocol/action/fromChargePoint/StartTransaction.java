@@ -12,8 +12,8 @@ import com.ev.ocpp16.domain.chargepoint.exception.ChargerConnectorNotFoundExcept
 import com.ev.ocpp16.domain.common.dto.AuthorizationStatus;
 import com.ev.ocpp16.domain.common.dto.IdTagInfo;
 import com.ev.ocpp16.domain.member.exception.MemberNotFoundException;
-import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.TransactionSaveDTO;
 import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.TransactionDetailSaveDTO;
+import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.TransactionSaveDTO;
 import com.ev.ocpp16.domain.transaction.entity.enums.ChargeStep;
 import com.ev.ocpp16.domain.transaction.exception.ChargeHistoryNotFoundException;
 import com.ev.ocpp16.domain.transaction.service.TransactionService;
@@ -41,12 +41,14 @@ public class StartTransaction implements ActionHandler<StartTransactionRequest, 
     @Override
     public StartTransactionResponse handleAction(PathInfo pathInfo, CallRequest<StartTransactionRequest> callRequest)
             throws ChargerConnectorNotFoundException, MemberNotFoundException, ChargeHistoryNotFoundException {
+
         StartTransactionRequest payload = callRequest.getPayload();
         String idTag = payload.getIdTag();
         Long chgrId = pathInfo.getChgrId();
         Integer connectorId = payload.getConnectorId();
-        LocalDateTime timestamp = DateTimeUtil.iso8601ToBasicDateTime(payload.getTimestamp());
+        LocalDateTime iso8601ToKoreanLocalDateTime = DateTimeUtil.iso8601ToKoreanLocalDateTime(payload.getTimestamp());
         BigDecimal meterValue = BigDecimal.valueOf(payload.getMeterStart());
+        ChargeStep chargeStep = ChargeStep.START_TRANSACTION;
 
         // 충전기 상태 검사
         if (!transactionService.isChgrStValidForStartCharging(chgrId, connectorId)) {
@@ -54,20 +56,24 @@ public class StartTransaction implements ActionHandler<StartTransactionRequest, 
         }
 
         // 충전 이력 저장
-        TransactionSaveDTO transactionSaveDTO = new TransactionSaveDTO(
-                idTag, chgrId, connectorId,
-                timestamp,
-                BigDecimal.ZERO,
-                ChargeStep.START_TRANSACTION);
+        TransactionSaveDTO transactionSaveDTO = TransactionSaveDTO.builder()
+                .idToken(idTag)
+                .chgrId(chgrId)
+                .connectorId(connectorId)
+                .timestamp(iso8601ToKoreanLocalDateTime)
+                .meterValue(BigDecimal.ZERO)
+                .chargeStep(chargeStep)
+                .build();
 
         Integer transactionId = transactionService.saveTransaction(transactionSaveDTO);
 
         // 충전 이력 상세 저장
-        TransactionDetailSaveDTO transactionDetailSaveDTO = new TransactionDetailSaveDTO(
-                transactionId,
-                timestamp,
-                meterValue,
-                ChargeStep.START_TRANSACTION);
+        TransactionDetailSaveDTO transactionDetailSaveDTO = TransactionDetailSaveDTO.builder()
+                .transactionId(transactionId)
+                .timestamp(iso8601ToKoreanLocalDateTime)
+                .meterValue(meterValue)
+                .chargeStep(chargeStep)
+                .build();
 
         transactionService.saveTransactionDetail(transactionDetailSaveDTO);
 

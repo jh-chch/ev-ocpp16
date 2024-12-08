@@ -1,6 +1,6 @@
 package com.ev.ocpp16.config.security;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class TokenResponse {
-    private final String token;
-    private final Date issuedAt;
-    private final Date expiresAt;
-} 
+    private String token;
+    private LocalDateTime issuedAt;
+    private LocalDateTime expiresAt;
+}

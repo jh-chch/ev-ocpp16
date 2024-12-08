@@ -44,27 +44,32 @@ public class MeterValues implements ActionHandler<MeterValuesRequest, MeterValue
     @Override
     public MeterValuesResponse handleAction(PathInfo pathInfo, CallRequest<MeterValuesRequest> callRequest)
             throws MemberNotFoundException, ChargerConnectorNotFoundException, ChargeHistoryNotFoundException {
+
         // MeterValue 추출
         MeterValueData meterValueData = extractMeterValueData(callRequest);
         MeterValuesRequest payload = callRequest.getPayload();
-        LocalDateTime timestamp = DateTimeUtil.iso8601ToBasicDateTime(meterValueData.getTimestamp());
+        Integer transactionId = payload.getTransactionId();
+        LocalDateTime timestamp = DateTimeUtil.iso8601ToKoreanLocalDateTime(meterValueData.getTimestamp());
         BigDecimal meterValue = BigDecimal.valueOf(Double.parseDouble(meterValueData.getValue()));
+        ChargeStep chargeStep = ChargeStep.METER_VALUES;
 
         // 1. 충전 이력 업데이트
-        TransactionUpdateDTO transactionUpdateDTO = new TransactionUpdateDTO(
-                payload.getTransactionId(),
-                timestamp,
-                meterValue,
-                ChargeStep.METER_VALUES);
+        TransactionUpdateDTO transactionUpdateDTO = TransactionUpdateDTO.builder()
+                .transactionId(transactionId)
+                .timestamp(timestamp)
+                .meterValue(meterValue)
+                .chargeStep(chargeStep)
+                .build();
 
         transactionService.updateTransaction(transactionUpdateDTO);
 
         // 2. 충전 이력 상세 저장
-        TransactionDetailSaveDTO dto = new TransactionDetailSaveDTO(
-                payload.getTransactionId(),
-                timestamp,
-                meterValue,
-                ChargeStep.METER_VALUES);
+        TransactionDetailSaveDTO dto = TransactionDetailSaveDTO.builder()
+                .transactionId(transactionId)
+                .timestamp(timestamp)
+                .meterValue(meterValue)
+                .chargeStep(chargeStep)
+                .build();
 
         transactionService.saveTransactionDetail(dto);
 

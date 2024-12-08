@@ -5,11 +5,11 @@ import java.time.LocalDateTime;
 
 import com.ev.ocpp16.domain.transaction.entity.enums.ChargeStep;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
+@Builder
 public class TransactionUpdateDTO {
     Integer transactionId;
     LocalDateTime timestamp;

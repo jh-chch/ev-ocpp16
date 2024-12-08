@@ -1,11 +1,11 @@
 package com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
 @Getter
-@AllArgsConstructor
+@Builder
 @ToString
 public class ChgrInfoUpdateDTO {
     private Long chgrId;

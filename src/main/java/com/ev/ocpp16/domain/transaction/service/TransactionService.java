@@ -15,8 +15,8 @@ import com.ev.ocpp16.domain.common.dto.ChargePointStatus;
 import com.ev.ocpp16.domain.member.entity.Member;
 import com.ev.ocpp16.domain.member.exception.MemberNotFoundException;
 import com.ev.ocpp16.domain.member.repository.MemberRepository;
-import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.TransactionSaveDTO;
 import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.TransactionDetailSaveDTO;
+import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.TransactionSaveDTO;
 import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.TransactionUpdateDTO;
 import com.ev.ocpp16.domain.transaction.entity.ChargeHistory;
 import com.ev.ocpp16.domain.transaction.entity.ChargeHistoryDetail;
@@ -105,13 +105,10 @@ public class TransactionService {
 				.orElseThrow(() -> new ChargerConnectorNotFoundException(dto.getChgrId(), dto.getConnectorId()));
 
 		return new ChargeHistory(
-				dto.getTimestamp(),
-				dto.getTimestamp(),
-				dto.getMeterValue(),
-				BigDecimal.ZERO,
+				dto.getTimestamp(), dto.getTimestamp(),
+				dto.getMeterValue(), BigDecimal.ZERO,
 				dto.getChargeStep(),
-				findChgrConn,
-				findMember);
+				findChgrConn, findMember);
 	}
 
 	// 충전 이력 상세 저장
@@ -147,4 +144,5 @@ public class TransactionService {
 		// 충전 이력 업데이트
 		findChgrHst.changeChgrHst(dto.getTimestamp(), dto.getChargeStep());
 	}
+
 }

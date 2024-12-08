@@ -2,7 +2,6 @@ package com.ev.ocpp16.config.security;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,6 +12,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.ev.ocpp16.domain.common.exception.api.ApiExceptionResponse;
 import com.ev.ocpp16.domain.common.exception.api.ApiExceptionStatus;
+import com.ev.ocpp16.websocket.utils.DateTimeUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.JwtException;
@@ -60,7 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             var status = ApiExceptionStatus.INVALID_CREDENTIALS;
 
             ApiExceptionResponse errorResponse = ApiExceptionResponse.builder()
-                    .timestamp(LocalDateTime.now())
+                    .timestamp(DateTimeUtil.currentKoreanLocalDateTime())
                     .detail(status.getResultMessage())
                     .errorCode(status.getResultCode())
                     .build();

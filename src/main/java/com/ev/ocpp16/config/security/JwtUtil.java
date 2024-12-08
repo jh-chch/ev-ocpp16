@@ -1,11 +1,12 @@
 package com.ev.ocpp16.config.security;
 
 import java.security.Key;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.springframework.stereotype.Component;
+
+import com.ev.ocpp16.websocket.utils.DateTimeUtil;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -18,14 +19,13 @@ public class JwtUtil {
     private final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
 
     public TokenResponse generateToken(String email) {
-        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
-        Date issuedAt = Date.from(now.toInstant());
-        Date expiration = Date.from(now.plusHours(1).toInstant());
+        LocalDateTime issuedAt = DateTimeUtil.currentKoreanLocalDateTime();
+        LocalDateTime expiration = issuedAt.plusMinutes(1);
 
         String token = Jwts.builder()
                 .setSubject(email)
-                .setIssuedAt(issuedAt)
-                .setExpiration(expiration)
+                .setIssuedAt(DateTimeUtil.koreanLocalDateTimeToDate(issuedAt))
+                .setExpiration(DateTimeUtil.koreanLocalDateTimeToDate(expiration))
                 .signWith(secretKey)
                 .compact();
 
@@ -54,9 +54,8 @@ public class JwtUtil {
 
     private boolean isTokenExpired(String token) {
         Date expiration = extractClaims(token).getExpiration();
-        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
-        Date currentDate = Date.from(now.toInstant());
-        return expiration.before(currentDate);
+        LocalDateTime now = DateTimeUtil.currentKoreanLocalDateTime();
+        return expiration.before(DateTimeUtil.koreanLocalDateTimeToDate(now));
     }
 
 }

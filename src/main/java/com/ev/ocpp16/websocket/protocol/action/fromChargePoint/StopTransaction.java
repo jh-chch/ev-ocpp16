@@ -39,24 +39,28 @@ public class StopTransaction implements ActionHandler<StopTransactionRequest, St
             throws ChargeHistoryNotFoundException, MemberNotFoundException, ChargerConnectorNotFoundException {
 
         StopTransactionRequest payload = callRequest.getPayload();
-        LocalDateTime timestamp = DateTimeUtil.iso8601ToBasicDateTime(payload.getTimestamp());
+        Integer transactionId = payload.getTransactionId();
+        LocalDateTime timestamp = DateTimeUtil.iso8601ToKoreanLocalDateTime(payload.getTimestamp());
         BigDecimal meterValue = new BigDecimal(payload.getMeterStop());
-
+        ChargeStep chargeStep = ChargeStep.STOP_TRANSACTION;
+        
         // 1. 충전 이력 업데이트
-        TransactionUpdateDTO transactionUpdateDTO = new TransactionUpdateDTO(
-                payload.getTransactionId(),
-                timestamp,
-                meterValue,
-                ChargeStep.STOP_TRANSACTION);
+        TransactionUpdateDTO transactionUpdateDTO = TransactionUpdateDTO.builder()
+                .transactionId(transactionId)
+                .timestamp(timestamp)
+                .meterValue(meterValue)
+                .chargeStep(chargeStep)
+                .build();
 
         transactionService.updateTransaction(transactionUpdateDTO);
 
         // 2. 충전 이력 상세 저장
-        TransactionDetailSaveDTO transactionDetailSaveDTO = new TransactionDetailSaveDTO(
-                payload.getTransactionId(),
-                timestamp,
-                meterValue,
-                ChargeStep.STOP_TRANSACTION);
+        TransactionDetailSaveDTO transactionDetailSaveDTO = TransactionDetailSaveDTO.builder()
+                .transactionId(transactionId)
+                .timestamp(timestamp)
+                .meterValue(meterValue)
+                .chargeStep(chargeStep)
+                .build();
 
         transactionService.saveTransactionDetail(transactionDetailSaveDTO);
 

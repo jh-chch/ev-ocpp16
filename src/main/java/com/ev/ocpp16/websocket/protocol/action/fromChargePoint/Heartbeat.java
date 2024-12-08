@@ -22,7 +22,7 @@ public class Heartbeat implements ActionHandler<HeartbeatRequest, HeartbeatRespo
 
     @Override
     public HeartbeatResponse handleAction(PathInfo pathInfo, CallRequest<HeartbeatRequest> callRequest) {
-        return new HeartbeatResponse(DateTimeUtil.currentDateTimeToISO8601());
+        return new HeartbeatResponse(DateTimeUtil.currentKoreanLocalDateTimeToISO8601());
     }
 
     @Override

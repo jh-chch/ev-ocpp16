@@ -1,8 +1,5 @@
 package com.ev.ocpp16.domain.common.exception.api;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -11,6 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import com.ev.ocpp16.websocket.utils.DateTimeUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,7 +22,7 @@ public class ApiExceptionAdvice {
 	public ResponseEntity<ApiExceptionResponse> handleApiException(ApiException e) {
 		var status = e.getApiExceptionStatus();
 		var errorResponse = ApiExceptionResponse.builder()
-				.timestamp(ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime().withNano(0))
+				.timestamp(DateTimeUtil.currentKoreanLocalDateTime())
 				.detail(status.getResultMessage())
 				.errorCode(status.getResultCode())
 				.build();
@@ -41,7 +40,7 @@ public class ApiExceptionAdvice {
 			MethodArgumentNotValidException e) {
 		var fieldError = e.getBindingResult().getFieldError();
 		var errorResponse = ApiExceptionResponse.builder()
-				.timestamp(ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime().withNano(0))
+				.timestamp(DateTimeUtil.currentKoreanLocalDateTime())
 				.detail(String.format("'%s' %s (Rejected value: %s)",
 						fieldError.getField(),
 						fieldError.getDefaultMessage(),
@@ -62,7 +61,7 @@ public class ApiExceptionAdvice {
 		var field = violation.getMethodParameter().getParameterName();
 
 		var errorResponse = ApiExceptionResponse.builder()
-				.timestamp(ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime().withNano(0))
+				.timestamp(DateTimeUtil.currentKoreanLocalDateTime())
 				.detail(String.format("'%s' %s (Rejected value: %s)",
 						field,
 						violation.getResolvableErrors().get(0).getDefaultMessage(),
@@ -80,7 +79,7 @@ public class ApiExceptionAdvice {
 	public ResponseEntity<ApiExceptionResponse> handleNoResourceFoundException(
 			NoResourceFoundException e) {
 		var errorResponse = ApiExceptionResponse.builder()
-				.timestamp(ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime().withNano(0))
+				.timestamp(DateTimeUtil.currentKoreanLocalDateTime())
 				.detail(String.format("Resource not found: %s %s",
 						e.getHttpMethod(),
 						e.getResourcePath()))
@@ -98,7 +97,7 @@ public class ApiExceptionAdvice {
 		var status = ApiExceptionStatus.INVALID_CREDENTIALS;
 
 		var errorResponse = ApiExceptionResponse.builder()
-				.timestamp(ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime().withNano(0))
+				.timestamp(DateTimeUtil.currentKoreanLocalDateTime())
 				.detail(status.getResultMessage())
 				.errorCode(status.getResultCode())
 				.build();
