@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 public enum ApiExceptionStatus {
     INVALID_CREDENTIALS(HttpStatus.FORBIDDEN, "INV_CREDENTIALS", "자격 증명에 실패하였습니다."),
     INVALID_AUTH_HEADER(HttpStatus.FORBIDDEN, "INV_AUTH_HDR", "잘못된 인증 헤더입니다."),
+
     DUPLICATE_ID_TOKEN(HttpStatus.BAD_REQUEST, "DUP_ID_TOKEN", "중복된 토큰입니다."),
     DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST, "DUP_EMAIL", "중복된 이메일입니다."),
     DUPLICATE_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "DUP_PHONE_NUMBER", "중복된 전화번호입니다."),
@@ -18,7 +19,10 @@ public enum ApiExceptionStatus {
     INVALID_SITE_NAME(HttpStatus.BAD_REQUEST, "INV_SITE_NAME", "존재하지 않는 사이트입니다."),
     INVALID_SERIAL_NUMBER(HttpStatus.BAD_REQUEST, "INV_SERIAL_NUMBER", "존재하지 않는 충전기입니다."),
 
-    NOT_FOUND_MEMBER(HttpStatus.BAD_REQUEST, "NOT_FOUND_MEMBER", "존재하지 않는 회원입니다.");
+    NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, "NOT_FOUND_MEMBER", "회원을 찾을 수 없습니다."),
+    NOT_FOUND_SITE(HttpStatus.NOT_FOUND, "NOT_FOUND_SITE", "사이트를 찾을 수 없습니다."),
+    NOT_FOUND_CHARGER(HttpStatus.NOT_FOUND, "NOT_FOUND_CHARGER", "충전기를 찾을 수 없습니다."),
+    NOT_FOUND_CHARGE_HISTORY(HttpStatus.NOT_FOUND, "NOT_FOUND_CHARGE_HISTORY", "충전 이력을 찾을 수 없습니다.");
 
     private final HttpStatus status;
     private final String resultCode;

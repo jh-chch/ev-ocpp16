@@ -35,7 +35,11 @@ public class ChargerApiRepository {
                 .where(siteNmEq(request.getSiteName()))
                 .fetch();
 
-        return Optional.of(ChgrsQueryDTO.Response.of(findChgrs));
+        if (findChgrs.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(ChgrsQueryDTO.Response.of(findChgrs));
     }
 
     public Optional<ChgrQueryDTO.Response> findChgrBySite(String serialNumber, ChgrQueryDTO.Request request) {
@@ -51,10 +55,16 @@ public class ChargerApiRepository {
     }
 
     public BooleanExpression siteNmEq(String siteNm) {
+        if (siteNm == null) {
+            return null;
+        }
         return charger.site.name.eq(siteNm);
     }
 
     public BooleanExpression chgrSerialEq(String serialNumber) {
+        if (serialNumber == null) {
+            return null;
+        }
         return charger.serialNumber.eq(serialNumber);
     }
 }

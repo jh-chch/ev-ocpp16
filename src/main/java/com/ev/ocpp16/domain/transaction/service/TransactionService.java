@@ -2,6 +2,7 @@ package com.ev.ocpp16.domain.transaction.service;
 
 import java.math.BigDecimal;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
@@ -12,9 +13,12 @@ import com.ev.ocpp16.domain.chargepoint.entity.ChargerConnector;
 import com.ev.ocpp16.domain.chargepoint.exception.ChargerConnectorNotFoundException;
 import com.ev.ocpp16.domain.chargepoint.repository.ChargerConnectorRepository;
 import com.ev.ocpp16.domain.common.dto.ChargePointStatus;
+import com.ev.ocpp16.domain.common.exception.api.ApiException;
+import com.ev.ocpp16.domain.common.exception.api.ApiExceptionStatus;
 import com.ev.ocpp16.domain.member.entity.Member;
 import com.ev.ocpp16.domain.member.exception.MemberNotFoundException;
 import com.ev.ocpp16.domain.member.repository.MemberRepository;
+import com.ev.ocpp16.domain.transaction.dto.api.ChgrHstQueryDTO;
 import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.TransactionDetailSaveDTO;
 import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.TransactionSaveDTO;
 import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.TransactionUpdateDTO;
@@ -28,6 +32,7 @@ import com.ev.ocpp16.domain.transaction.repository.ChargeHistoryDetailRepository
 import com.ev.ocpp16.domain.transaction.repository.ChargeHistoryRepository;
 import com.ev.ocpp16.domain.transaction.repository.ChargerErrorHistoryRepository;
 import com.ev.ocpp16.domain.transaction.repository.ChargerErrorRepository;
+import com.ev.ocpp16.domain.transaction.repository.api.TransactionApiRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,6 +46,8 @@ public class TransactionService {
 	private final MemberRepository memberRepository;
 	private final ChargeHistoryRepository chargeHistoryRepository;
 	private final ChargeHistoryDetailRepository chargeHistoryDetailRepository;
+
+	private final TransactionApiRepository transactionApiRepository;
 
 	// NoError 아니면 charger_error_history 저장
 	public void saveChgrErrorHst(ChgrErrorHstSaveDTO dto)
@@ -145,4 +152,9 @@ public class TransactionService {
 		findChgrHst.changeChgrHst(dto.getTimestamp(), dto.getChargeStep());
 	}
 
+	// 충전 이력 조회
+	public List<ChgrHstQueryDTO.Response> getTransactions(ChgrHstQueryDTO.Request dto) {
+		return transactionApiRepository.findChgrHsts(dto)
+				.orElseThrow(() -> new ApiException(ApiExceptionStatus.NOT_FOUND_CHARGE_HISTORY));
+	}
 }

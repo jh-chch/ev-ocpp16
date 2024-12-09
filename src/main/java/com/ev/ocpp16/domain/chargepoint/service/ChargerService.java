@@ -68,13 +68,13 @@ public class ChargerService {
 
     // 사이트의 모든 충전기 조회
     public ChgrsQueryDTO.Response getChgrsBySite(ChgrsQueryDTO.Request request) {
+        // 사이트 존재 여부 확인
+        if (!siteRepository.existsByName(request.getSiteName())) {
+            throw new ApiException(ApiExceptionStatus.INVALID_SITE_NAME);
+        }
+
         return chargerApiRepository.findChgrsBySite(request)
-                .map(chgr -> {
-                    if (chgr.getChargers().isEmpty()) {
-                        throw new ApiException(ApiExceptionStatus.INVALID_SITE_NAME);
-                    }
-                    return chgr;
-                }).get();
+                .orElseThrow(() -> new ApiException(ApiExceptionStatus.NOT_FOUND_CHARGER));
     }
 
     // 사이트의 특정 충전기 조회
