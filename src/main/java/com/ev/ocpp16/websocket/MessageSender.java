@@ -1,9 +1,9 @@
 package com.ev.ocpp16.websocket;
 
-import static com.ev.ocpp16.websocket.utils.Constants.CALL_CLIENT_TO_SERVER;
-import static com.ev.ocpp16.websocket.utils.Constants.CALL_RESULT_SERVER_TO_CLIENT;
-import static com.ev.ocpp16.websocket.utils.Constants.USER_TYPE_ADMIN;
-import static com.ev.ocpp16.websocket.utils.Constants.USER_TYPE_USER;
+import static com.ev.ocpp16.websocket.Constants.CALL_CLIENT_TO_SERVER;
+import static com.ev.ocpp16.websocket.Constants.CALL_RESULT_SERVER_TO_CLIENT;
+import static com.ev.ocpp16.websocket.Constants.USER_TYPE_ADMIN;
+import static com.ev.ocpp16.websocket.Constants.USER_TYPE_USER;
 
 import java.io.IOException;
 
@@ -73,7 +73,7 @@ public class MessageSender {
 
     private boolean isTargetSession(String userType, PathInfo pathInfo, PathInfo targetPathInfo) {
         return userType.equals(targetPathInfo.getUserType())
-                && pathInfo.getSiteId().equals(targetPathInfo.getSiteId())
-                && pathInfo.getChgrId().equals(targetPathInfo.getChgrId());
+                && pathInfo.getSiteIdentifier().equals(targetPathInfo.getSiteIdentifier())
+                && pathInfo.getChargerIdentifier().equals(targetPathInfo.getChargerIdentifier());
     }
 }

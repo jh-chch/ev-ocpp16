@@ -8,8 +8,8 @@ import lombok.Getter;
 public class PathValidationResult {
     private final String userType;
     private final String version;
-    private final Long siteId;
-    private final Long chgrId;
+    private final String siteIdentifier;
+    private final String chargerIdentifier;
     private final boolean valid;
 
     public static PathValidationResult invalid() {

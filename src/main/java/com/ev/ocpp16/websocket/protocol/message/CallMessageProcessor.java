@@ -1,27 +1,22 @@
 package com.ev.ocpp16.websocket.protocol.message;
 
-import static com.ev.ocpp16.websocket.utils.Constants.CALL_CLIENT_TO_SERVER;
-import static com.ev.ocpp16.websocket.utils.Constants.CALL_RESULT_SERVER_TO_CLIENT;
-import static com.ev.ocpp16.websocket.utils.Constants.USER_TYPE_ADMIN;
-import static com.ev.ocpp16.websocket.utils.Constants.USER_TYPE_USER;
+import static com.ev.ocpp16.websocket.Constants.CALL_CLIENT_TO_SERVER;
+import static com.ev.ocpp16.websocket.Constants.CALL_RESULT_SERVER_TO_CLIENT;
+import static com.ev.ocpp16.websocket.Constants.USER_TYPE_ADMIN;
+import static com.ev.ocpp16.websocket.Constants.USER_TYPE_USER;
 
 import java.util.Map;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
-import com.ev.ocpp16.domain.chargepoint.exception.ChargerConnectorNotFoundException;
-import com.ev.ocpp16.domain.chargepoint.exception.ChargerNotFoundException;
-import com.ev.ocpp16.domain.member.exception.MemberNotFoundException;
-import com.ev.ocpp16.domain.transaction.exception.ChargeHistoryNotFoundException;
-import com.ev.ocpp16.domain.transaction.exception.ChargerErrorNotFoundException;
+import com.ev.ocpp16.websocket.Constants;
 import com.ev.ocpp16.websocket.dto.CallRequest;
 import com.ev.ocpp16.websocket.dto.CallResponse;
 import com.ev.ocpp16.websocket.dto.PathInfo;
 import com.ev.ocpp16.websocket.exception.ErrorCode;
 import com.ev.ocpp16.websocket.exception.OcppException;
 import com.ev.ocpp16.websocket.protocol.action.ActionHandler;
-import com.ev.ocpp16.websocket.utils.Constants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,16 +43,6 @@ public class CallMessageProcessor<T, R> implements MessageProcessor {
             R handleAction = actionHandler.handleAction(pathInfo, parsedCallRequest);
 
             return new CallResponse(session, pathInfo, callRequest, createMessage(pathInfo, callRequest, handleAction));
-        } catch (MemberNotFoundException e) {
-            throw new OcppException(callRequest.getUniqueId(), ErrorCode.SECURITY_ERROR, e.getMessage());
-        } catch (ChargerErrorNotFoundException e) {
-            throw new OcppException(callRequest.getUniqueId(), ErrorCode.INTERNAL_ERROR, e.getMessage());
-        } catch (ChargerConnectorNotFoundException e) {
-            throw new OcppException(callRequest.getUniqueId(), ErrorCode.GENERIC_ERROR, e.getMessage());
-        } catch (ChargerNotFoundException e) {
-            throw new OcppException(callRequest.getUniqueId(), ErrorCode.GENERIC_ERROR, e.getMessage());
-        } catch (ChargeHistoryNotFoundException e) {
-            throw new OcppException(callRequest.getUniqueId(), ErrorCode.INTERNAL_ERROR, e.getMessage());
         } catch (OcppException e) {
             throw e;
         } catch (Exception e) {

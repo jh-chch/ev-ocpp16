@@ -1,21 +1,24 @@
 package com.ev.ocpp16.websocket.protocol.action.fromChargePoint;
 
-import static com.ev.ocpp16.websocket.utils.Constants.USER_TYPE_USER;
+import static com.ev.ocpp16.websocket.Constants.USER_TYPE_USER;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
-import com.ev.ocpp16.domain.chargepoint.dto.fromChargePoint.ChgrInfoUpdateDTO;
-import com.ev.ocpp16.domain.chargepoint.exception.ChargerNotFoundException;
-import com.ev.ocpp16.domain.chargepoint.service.ChargerService;
-import com.ev.ocpp16.domain.common.dto.RegistrationStatus;
+import com.ev.ocpp16.application.ChargingManageService;
+import com.ev.ocpp16.domain.chargingManagement.dto.ChargerInfoUpdateRequestDTO;
+import com.ev.ocpp16.domain.chargingManagement.exception.ChargerNotFoundException;
+import com.ev.ocpp16.global.utils.DateTimeUtil;
 import com.ev.ocpp16.websocket.dto.CallRequest;
 import com.ev.ocpp16.websocket.dto.PathInfo;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.common.RegistrationStatus;
 import com.ev.ocpp16.websocket.dto.fromChargePoint.request.BootNotificationRequest;
 import com.ev.ocpp16.websocket.dto.fromChargePoint.response.BootNotificationResponse;
 import com.ev.ocpp16.websocket.protocol.action.ActionHandler;
-import com.ev.ocpp16.websocket.utils.DateTimeUtil;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -25,25 +28,31 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BootNotification implements ActionHandler<BootNotificationRequest, BootNotificationResponse> {
 
-    private final ChargerService chargerService;
+    private final ChargingManageService chargingManageService;
 
     @Value("${boot.interval}")
     private Integer interval;
 
-    @Override
-    public BootNotificationResponse handleAction(PathInfo pathInfo, CallRequest<BootNotificationRequest> callRequest) {
-        ChgrInfoUpdateDTO chgrInfoUpdateDTO = ChgrInfoUpdateDTO.builder()
-                .chgrId(pathInfo.getChgrId())
-                .model(callRequest.getPayload().getChargePointModel())
-                .serialNumber(callRequest.getPayload().getChargePointSerialNumber())
-                .vendor(callRequest.getPayload().getChargePointVendor())
-                .firmwareVersion(callRequest.getPayload().getFirmwareVersion())
-                .build();
+    @PostConstruct
+    public void init() {
+        Assert.notNull(interval, "interval is not initialized");
+        Assert.isTrue(interval > 0, "interval must be greater than 0");
+    }
 
-        // 충전기 정보 업데이트 -> 충전기 정보 업데이트 실패 시 거절
+    @Override
+    @Transactional
+    public BootNotificationResponse handleAction(PathInfo pathInfo, CallRequest<BootNotificationRequest> callRequest) {
         RegistrationStatus registrationStatus = RegistrationStatus.Accepted;
+
         try {
-            chargerService.updateChgrInfo(chgrInfoUpdateDTO);
+            var chargerInfoUpdateDTO = ChargerInfoUpdateRequestDTO.builder()
+                    .chargePointModel(callRequest.getPayload().getChargePointModel())
+                    .chargePointVendor(callRequest.getPayload().getChargePointVendor())
+                    .chargePointSerialNumber(callRequest.getPayload().getChargePointSerialNumber())
+                    .firmwareVersion(callRequest.getPayload().getFirmwareVersion())
+                    .build();
+
+            chargingManageService.updateChargerInfo(pathInfo.getChargerIdentifier(), chargerInfoUpdateDTO);
         } catch (ChargerNotFoundException e) {
             registrationStatus = RegistrationStatus.Rejected;
         }

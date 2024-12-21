@@ -1,7 +1,7 @@
 package com.ev.ocpp16.websocket.dto.fromChargePoint.request;
 
-import com.ev.ocpp16.domain.common.dto.ChargePointErrorCode;
-import com.ev.ocpp16.domain.common.dto.ChargePointStatus;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.common.ChargePointErrorCode;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.common.ChargePointStatus;
 
 import lombok.Getter;
 import lombok.ToString;

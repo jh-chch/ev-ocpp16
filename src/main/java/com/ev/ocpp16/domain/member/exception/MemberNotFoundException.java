@@ -1,11 +1,8 @@
 package com.ev.ocpp16.domain.member.exception;
 
-import lombok.Getter;
+public class MemberNotFoundException extends MemberException {
 
-@Getter
-public class MemberNotFoundException extends Exception {
-
-    public MemberNotFoundException(String idToken) {
-        super("Member not found: " + idToken);
+    public MemberNotFoundException(String message) {
+        super(message);
     }
 }

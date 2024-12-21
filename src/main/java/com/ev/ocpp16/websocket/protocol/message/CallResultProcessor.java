@@ -1,16 +1,16 @@
 package com.ev.ocpp16.websocket.protocol.message;
 
-import static com.ev.ocpp16.websocket.utils.Constants.CALL_RESULT_SERVER_TO_CLIENT;
+import static com.ev.ocpp16.websocket.Constants.CALL_RESULT_SERVER_TO_CLIENT;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
+import com.ev.ocpp16.websocket.Constants;
 import com.ev.ocpp16.websocket.dto.CallRequest;
 import com.ev.ocpp16.websocket.dto.CallResponse;
 import com.ev.ocpp16.websocket.dto.PathInfo;
 import com.ev.ocpp16.websocket.exception.ErrorCode;
 import com.ev.ocpp16.websocket.exception.OcppException;
-import com.ev.ocpp16.websocket.utils.Constants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

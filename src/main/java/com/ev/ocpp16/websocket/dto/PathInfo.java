@@ -1,6 +1,6 @@
 package com.ev.ocpp16.websocket.dto;
 
-import static com.ev.ocpp16.websocket.utils.Constants.PATH_INFO;
+import static com.ev.ocpp16.websocket.Constants.PATH_INFO;
 
 import org.springframework.web.socket.WebSocketSession;
 
@@ -16,8 +16,8 @@ import lombok.ToString;
 public class PathInfo {
     private final String userType;
     private final String version;
-    private final Long siteId;
-    private final Long chgrId;
+    private final String siteIdentifier;
+    private final String chargerIdentifier;
 
     public static PathInfo from(WebSocketSession session) {
         if (session == null) {

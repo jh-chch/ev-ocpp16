@@ -68,6 +68,14 @@ public class Member extends BaseTimeEntity implements UserDetails {
     @Column(name = "account_status", nullable = false, columnDefinition = "enum('ACTIVE','LOCKED','INACTIVE') default 'ACTIVE'")
     private AccountStatus accountStatus;
 
+    public void changeEncodedPassword(String password) {
+        this.password = password;
+    }
+
+    public boolean isActive() {
+        return AccountStatus.ACTIVE.equals(accountStatus);
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority(roles.name()));

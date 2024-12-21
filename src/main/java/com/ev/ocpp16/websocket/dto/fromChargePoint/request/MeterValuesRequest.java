@@ -2,7 +2,7 @@ package com.ev.ocpp16.websocket.dto.fromChargePoint.request;
 
 import java.util.List;
 
-import com.ev.ocpp16.domain.common.dto.MeterValue;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.common.MeterValue;
 
 import lombok.Getter;
 import lombok.ToString;

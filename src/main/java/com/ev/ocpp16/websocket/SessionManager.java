@@ -1,6 +1,6 @@
 package com.ev.ocpp16.websocket;
 
-import static com.ev.ocpp16.websocket.utils.Constants.SESSION_KEY;
+import static com.ev.ocpp16.websocket.Constants.SESSION_KEY;
 
 import java.io.IOException;
 import java.util.Map;
@@ -8,12 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
-
-import com.ev.ocpp16.domain.chargepoint.entity.enums.ChgrConnSt;
-import com.ev.ocpp16.domain.chargepoint.service.ChargerService;
-import com.ev.ocpp16.websocket.dto.PathInfo;
-import com.ev.ocpp16.websocket.utils.Constants;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class SessionManager {
     private final Map<String, WebSocketSession> sessionMap = new ConcurrentHashMap<>();
-    private final ChargerService chargerService;
 
     public Map<String, WebSocketSession> getSessionMap() {
         return sessionMap;
@@ -33,6 +28,7 @@ public class SessionManager {
      * 새로운 WebSocket 세션을 추가합니다.
      * 동일한 식별자를 가진 기존 세션이 있다면 새로운 세션을 종료하고 기존 세션을 유지
      */
+    @Transactional
     public void addSession(WebSocketSession session) {
         validateSession(session);
         String sessionKey = getSessionKey(session);
@@ -42,9 +38,6 @@ public class SessionManager {
             closeSession(session);
             return;
         }
-
-        // 소켓 연결 시 충전기 상태 CONNECTED 상태로 변경
-        chargerService.updateChgrConnSt(PathInfo.from(session).getChgrId(), ChgrConnSt.CONNECTED);
 
         sessionMap.put(sessionKey, session);
         log.info(
@@ -79,14 +72,12 @@ public class SessionManager {
         }
     }
 
+    @Transactional
     public void removeSession(WebSocketSession session) {
         String sessionKey = getSessionKey(session);
         WebSocketSession existingSession = sessionMap.get(sessionKey);
 
         if (existingSession != null && existingSession.getId().equals(session.getId())) {
-            // 소켓 연결 종료 시 충전기 상태 DISCONNECTED 상태로 변경
-            chargerService.updateChgrConnSt(PathInfo.from(session).getChgrId(), ChgrConnSt.DISCONNECTED);
-            
             sessionMap.remove(sessionKey);
             MDC.remove((String) session.getAttributes().get(Constants.MDC_KEY));
             log.info("SESSION clear: {} Session key: {}", session, sessionKey);

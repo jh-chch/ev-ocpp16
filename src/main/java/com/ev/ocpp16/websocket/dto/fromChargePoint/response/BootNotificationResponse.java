@@ -1,6 +1,6 @@
 package com.ev.ocpp16.websocket.dto.fromChargePoint.response;
 
-import com.ev.ocpp16.domain.common.dto.RegistrationStatus;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.common.RegistrationStatus;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

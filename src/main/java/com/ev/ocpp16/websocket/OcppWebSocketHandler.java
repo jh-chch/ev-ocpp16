@@ -1,20 +1,22 @@
 package com.ev.ocpp16.websocket;
 
-import static com.ev.ocpp16.websocket.utils.Constants.MDC_KEY;
+import static com.ev.ocpp16.websocket.Constants.MDC_KEY;
 
 import java.util.List;
 
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import com.ev.ocpp16.domain.chargepoint.entity.enums.ChgrConnSt;
-import com.ev.ocpp16.domain.chargepoint.service.ChargerService;
+import com.ev.ocpp16.application.ChargingManageService;
+import com.ev.ocpp16.domain.chargingManagement.entity.enums.ConnectionStatus;
 import com.ev.ocpp16.websocket.dto.CallRequest;
 import com.ev.ocpp16.websocket.dto.CallResponse;
+import com.ev.ocpp16.websocket.dto.PathInfo;
 import com.ev.ocpp16.websocket.exception.ErrorCode;
 import com.ev.ocpp16.websocket.exception.OcppException;
 import com.ev.ocpp16.websocket.exception.OcppExceptionHandler;
@@ -35,19 +37,26 @@ public class OcppWebSocketHandler extends TextWebSocketHandler {
     private final OcppExceptionHandler errorHandler;
     private final MessageSender messageSender;
     private final SessionManager sessionManager;
-    private final ChargerService chargerService;
     private final ObjectMapper objectMapper;
+
+    private final ChargingManageService chargingManageService;
 
     @PostConstruct
     public void initializeChargerConnectionStatus() {
         // 모든 충전기 상태 DISCONNECTED 상태로 변경
-        chargerService.updateAllChgrConnSt(ChgrConnSt.DISCONNECTED);
+        chargingManageService.updateAllChargerConnectionStatus(ConnectionStatus.DISCONNECTED);
     }
 
+    @Transactional
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         log.info("afterConnectionEstablished");
         sessionManager.addSession(session);
+
+        // 소켓 연결 시 충전기 상태 CONNECTED 상태로 변경
+        chargingManageService.updateChargerConnectionStatus(
+                PathInfo.from(session).getChargerIdentifier(),
+                ConnectionStatus.CONNECTED);
     }
 
     @Override
@@ -86,10 +95,16 @@ public class OcppWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    @Transactional
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         log.info("afterConnectionClosed");
         sessionManager.removeSession(session);
+
+        // 소켓 연결 종료 시 충전기 상태 DISCONNECTED 상태로 변경
+        chargingManageService.updateChargerConnectionStatus(
+                PathInfo.from(session).getChargerIdentifier(),
+                ConnectionStatus.DISCONNECTED);
     }
 
     private JsonNode parseJsonNode(TextMessage message) {

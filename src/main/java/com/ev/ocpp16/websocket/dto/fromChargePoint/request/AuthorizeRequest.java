@@ -1,6 +1,6 @@
 package com.ev.ocpp16.websocket.dto.fromChargePoint.request;
 
-import com.ev.ocpp16.domain.common.dto.IdToken;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.common.IdToken;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 

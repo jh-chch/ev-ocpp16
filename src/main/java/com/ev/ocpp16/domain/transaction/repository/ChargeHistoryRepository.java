@@ -1,9 +1,0 @@
-package com.ev.ocpp16.domain.transaction.repository;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import com.ev.ocpp16.domain.transaction.entity.ChargeHistory;
-
-public interface ChargeHistoryRepository extends JpaRepository<ChargeHistory, Integer> {
-
-}

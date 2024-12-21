@@ -1,6 +1,6 @@
 package com.ev.ocpp16.websocket.exception;
 
-import static com.ev.ocpp16.websocket.utils.Constants.CALL_ERROR_SERVER_TO_CLIENT;
+import static com.ev.ocpp16.websocket.Constants.CALL_ERROR_SERVER_TO_CLIENT;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

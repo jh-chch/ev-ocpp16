@@ -1,26 +1,23 @@
 package com.ev.ocpp16.websocket.protocol.action.fromChargePoint;
 
-import static com.ev.ocpp16.websocket.utils.Constants.USER_TYPE_USER;
+import static com.ev.ocpp16.websocket.Constants.USER_TYPE_USER;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ev.ocpp16.domain.chargepoint.exception.ChargerConnectorNotFoundException;
-import com.ev.ocpp16.domain.member.exception.MemberNotFoundException;
-import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.TransactionDetailSaveDTO;
-import com.ev.ocpp16.domain.transaction.dto.fromChargePoint.TransactionUpdateDTO;
-import com.ev.ocpp16.domain.transaction.entity.enums.ChargeStep;
-import com.ev.ocpp16.domain.transaction.exception.ChargeHistoryNotFoundException;
-import com.ev.ocpp16.domain.transaction.service.TransactionService;
+import com.ev.ocpp16.application.ChargingManageService;
+import com.ev.ocpp16.domain.chargingManagement.entity.enums.ChargeStep;
+import com.ev.ocpp16.domain.chargingManagement.exception.ChargeHistoryNotFoundException;
+import com.ev.ocpp16.global.utils.DateTimeUtil;
 import com.ev.ocpp16.websocket.dto.CallRequest;
 import com.ev.ocpp16.websocket.dto.PathInfo;
 import com.ev.ocpp16.websocket.dto.fromChargePoint.request.StopTransactionRequest;
 import com.ev.ocpp16.websocket.dto.fromChargePoint.response.StopTransactionResponse;
+import com.ev.ocpp16.websocket.exception.ErrorCode;
+import com.ev.ocpp16.websocket.exception.OcppException;
 import com.ev.ocpp16.websocket.protocol.action.ActionHandler;
-import com.ev.ocpp16.websocket.utils.DateTimeUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,41 +28,27 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class StopTransaction implements ActionHandler<StopTransactionRequest, StopTransactionResponse> {
 
-    private final TransactionService transactionService;
+    private final ChargingManageService chargingManageService;
 
     @Transactional
     @Override
-    public StopTransactionResponse handleAction(PathInfo pathInfo, CallRequest<StopTransactionRequest> callRequest)
-            throws ChargeHistoryNotFoundException, MemberNotFoundException, ChargerConnectorNotFoundException {
-
+    public StopTransactionResponse handleAction(PathInfo pathInfo, CallRequest<StopTransactionRequest> callRequest) {
         StopTransactionRequest payload = callRequest.getPayload();
-        Integer transactionId = payload.getTransactionId();
-        LocalDateTime timestamp = DateTimeUtil.iso8601ToKoreanLocalDateTime(payload.getTimestamp());
-        BigDecimal meterValue = new BigDecimal(payload.getMeterStop());
-        ChargeStep chargeStep = ChargeStep.STOP_TRANSACTION;
-        
-        // 1. 충전 이력 업데이트
-        TransactionUpdateDTO transactionUpdateDTO = TransactionUpdateDTO.builder()
-                .transactionId(transactionId)
-                .timestamp(timestamp)
-                .meterValue(meterValue)
-                .chargeStep(chargeStep)
-                .build();
 
-        transactionService.updateTransaction(transactionUpdateDTO);
-
-        // 2. 충전 이력 상세 저장
-        TransactionDetailSaveDTO transactionDetailSaveDTO = TransactionDetailSaveDTO.builder()
-                .transactionId(transactionId)
-                .timestamp(timestamp)
-                .meterValue(meterValue)
-                .chargeStep(chargeStep)
-                .build();
-
-        transactionService.saveTransactionDetail(transactionDetailSaveDTO);
-
-        return new StopTransactionResponse();
-
+        try {
+            chargingManageService.processMeterValues(
+                    payload.getTransactionId(),
+                    DateTimeUtil.iso8601ToKoreanLocalDateTime(payload.getTimestamp()),
+                    new BigDecimal(payload.getMeterStop()),
+                    ChargeStep.STOP_TRANSACTION);
+            return new StopTransactionResponse();
+        } catch (ChargeHistoryNotFoundException e) {
+            throw new OcppException(callRequest.getUniqueId(), ErrorCode.OCCURENCE_CONSTRAINT_VIOLATION,
+                    "충전 이력을 찾을 수 없습니다.");
+        } catch (IllegalArgumentException e) {
+            throw new OcppException(callRequest.getUniqueId(), ErrorCode.TYPE_CONSTRAINT_VIOLATION,
+                    "충전 이력 업데이트 중 오류가 발생했습니다.");
+        }
     }
 
     @Override

@@ -1,15 +1,16 @@
 package com.ev.ocpp16.websocket.protocol.action.fromChargePoint;
 
-import static com.ev.ocpp16.websocket.utils.Constants.USER_TYPE_USER;
+import static com.ev.ocpp16.websocket.Constants.USER_TYPE_USER;
 
 import org.springframework.stereotype.Component;
 
-import com.ev.ocpp16.domain.common.dto.AuthorizationStatus;
-import com.ev.ocpp16.domain.common.dto.IdTagInfo;
-import com.ev.ocpp16.domain.member.entity.enums.AccountStatus;
-import com.ev.ocpp16.domain.member.service.MemberService;
+import com.ev.ocpp16.application.ChargingManageService;
+import com.ev.ocpp16.domain.member.exception.MemberException;
+import com.ev.ocpp16.domain.member.exception.MemberNotFoundException;
 import com.ev.ocpp16.websocket.dto.CallRequest;
 import com.ev.ocpp16.websocket.dto.PathInfo;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.common.AuthorizationStatus;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.common.IdTagInfo;
 import com.ev.ocpp16.websocket.dto.fromChargePoint.request.AuthorizeRequest;
 import com.ev.ocpp16.websocket.dto.fromChargePoint.response.AuthorizeResponse;
 import com.ev.ocpp16.websocket.protocol.action.ActionHandler;
@@ -23,21 +24,19 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class Authorize implements ActionHandler<AuthorizeRequest, AuthorizeResponse> {
 
-    private final MemberService memberService;
+    private final ChargingManageService chargingManageService;
 
     @Override
     public AuthorizeResponse handleAction(PathInfo pathInfo, CallRequest<AuthorizeRequest> callRequest) {
-        String idToken = callRequest.getPayload().getIdTag().getIdToken();
-
-        // idToken으로 회원 조회
-        return memberService.getMemberForCharging(idToken)
-                .map(member -> {
-                    AuthorizationStatus status = AccountStatus.ACTIVE.equals(member.getAccountStatus())
-                            ? AuthorizationStatus.Accepted
-                            : AuthorizationStatus.Blocked;
-                    return new AuthorizeResponse(new IdTagInfo(status));
-                })
-                .orElseGet(() -> new AuthorizeResponse(new IdTagInfo(AuthorizationStatus.Invalid)));
+        try {
+            String idToken = callRequest.getPayload().getIdTag().getIdToken();
+            chargingManageService.validateMemberForCharging(idToken);
+            return new AuthorizeResponse(new IdTagInfo(AuthorizationStatus.Accepted));
+        } catch (MemberNotFoundException e) {
+            return new AuthorizeResponse(new IdTagInfo(AuthorizationStatus.Invalid));
+        } catch (MemberException e) {
+            return new AuthorizeResponse(new IdTagInfo(AuthorizationStatus.Blocked));
+        }
     }
 
     @Override

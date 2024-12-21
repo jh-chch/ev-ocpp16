@@ -1,6 +1,6 @@
 package com.ev.ocpp16.websocket.dto.fromCentralSystem.request;
 
-import com.ev.ocpp16.domain.common.dto.ResetType;
+import com.ev.ocpp16.websocket.dto.fromChargePoint.common.ResetType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -21,9 +21,9 @@ import lombok.ToString;
 @ToString
 public class BootNotificationRequest {
     private String chargeBoxSerialNumber;
-    private final String chargePointModel; // 1..1
+    private final String chargePointModel;
     private String chargePointSerialNumber;
-    private final String chargePointVendor; // 1..1
+    private final String chargePointVendor;
     private String firmwareVersion;
     private String iccid;
     private String imsi;
