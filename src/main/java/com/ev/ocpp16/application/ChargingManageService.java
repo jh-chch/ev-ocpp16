@@ -58,9 +58,9 @@ public class ChargingManageService {
      * @param connectionStatus 충전기 연결 상태
      * 
      * @throws ChargerNotFoundException
+     * @throws ChargerException
      */
-    public void updateChargerConnectionStatus(String chargerIdentifier, ConnectionStatus connectionStatus)
-            throws ChargerNotFoundException {
+    public void updateChargerConnectionStatus(String chargerIdentifier, ConnectionStatus connectionStatus) throws ChargerNotFoundException, ChargerException  {
         Charger findCharger = chargerQueryService.validateChargerForCharging(chargerIdentifier);
         chargerCommandService.updateChargerConnectionStatus(findCharger, connectionStatus);
     }
@@ -71,8 +71,9 @@ public class ChargingManageService {
      * @param chargerIdentifier 충전기 식별자
      * 
      * @throws ChargerNotFoundException
+     * @throws ChargerException
      */
-    public void validateChargerForCharging(String chargerIdentifier) throws ChargerNotFoundException {
+    public void validateChargerForCharging(String chargerIdentifier) throws ChargerNotFoundException, ChargerException {
         chargerQueryService.validateChargerForCharging(chargerIdentifier);
     }
 
@@ -93,9 +94,10 @@ public class ChargingManageService {
      * @param chargerIdentifier 충전기 식별자
      * @param dto               충전기 정보 업데이트 요청 DTO
      * @throws ChargerNotFoundException
+     * @throws ChargerException
      */
     public void updateChargerInfo(String chargerIdentifier, ChargerInfoUpdateRequestDTO dto)
-            throws ChargerNotFoundException {
+            throws ChargerNotFoundException, ChargerException {
         Charger findCharger = chargerQueryService.validateChargerForCharging(chargerIdentifier);
         chargerCommandService.updateChargerInfo(findCharger, dto);
     }
@@ -109,12 +111,13 @@ public class ChargingManageService {
      * @param errorCode         충전기 오류 코드
      * @throws ChargerNotFoundException
      * @throws ChargerConnectorNotFoundException
+     * @throws ChargerException
      */
     public void processChargerStatusNotification(
             String chargerIdentifier,
             Integer connectorId,
             ConnectorStatus connectorStatus,
-            ChargerErrorCode errorCode) throws ChargerNotFoundException, ChargerConnectorNotFoundException {
+            ChargerErrorCode errorCode) throws ChargerNotFoundException, ChargerConnectorNotFoundException, ChargerException {
 
         // 충전기 및 커텍터 조회
         Charger findCharger = chargerQueryService.validateChargerForCharging(chargerIdentifier);
@@ -191,10 +194,9 @@ public class ChargingManageService {
      * @param meterValue    충전 미터 값
      * @param chargeStep    충전 단계
      * @throws ChargeHistoryNotFoundException
-     * @throws IllegalArgumentException
      */
     public void processMeterValues(Integer transactionId, LocalDateTime timestamp, BigDecimal meterValue,
-            ChargeStep chargeStep) throws ChargeHistoryNotFoundException, IllegalArgumentException {
+            ChargeStep chargeStep) throws ChargeHistoryNotFoundException {
         // 충전 이력 조회
         ChargeHistory findChargeHistory = historyQueryService.getChargeHistory(transactionId);
 
