@@ -13,7 +13,7 @@ import com.ev.ocpp16.domain.chargingManagement.entity.enums.ConnectionStatus;
 public interface ChargerRepository extends JpaRepository<Charger, Long> {
     @Modifying(clearAutomatically = true)
     @Query("update Charger c set c.connectionStatus = :connectionStatus")
-    void updateAllChargerConnectionStatus(ConnectionStatus connectionStatus);
+    void updateAllChargerConnectionStatus(@Param("connectionStatus") ConnectionStatus connectionStatus);
 
     Optional<Charger> findBySerialNumber(@Param("serialNumber") String chargerIdentifier);
 }
