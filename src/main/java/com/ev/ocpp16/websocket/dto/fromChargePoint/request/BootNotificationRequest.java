@@ -1,6 +1,7 @@
 package com.ev.ocpp16.websocket.dto.fromChargePoint.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
 import lombok.ToString;
@@ -31,7 +32,9 @@ public class BootNotificationRequest {
     private String meterType;
 
     @JsonCreator
-    public BootNotificationRequest(String chargePointModel, String chargePointVendor) {
+    public BootNotificationRequest(
+            @JsonProperty("chargePointModel") String chargePointModel,
+            @JsonProperty("chargePointVendor") String chargePointVendor) {
         this.chargePointModel = chargePointModel;
         this.chargePointVendor = chargePointVendor;
     }
