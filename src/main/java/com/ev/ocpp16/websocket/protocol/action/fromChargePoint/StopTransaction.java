@@ -46,8 +46,7 @@ public class StopTransaction implements ActionHandler<StopTransactionRequest, St
             throw new OcppException(callRequest.getUniqueId(), ErrorCode.OCCURENCE_CONSTRAINT_VIOLATION,
                     "충전 이력을 찾을 수 없습니다.");
         } catch (IllegalArgumentException e) {
-            throw new OcppException(callRequest.getUniqueId(), ErrorCode.TYPE_CONSTRAINT_VIOLATION,
-                    "충전 이력 업데이트 중 오류가 발생했습니다.");
+            throw new OcppException(callRequest.getUniqueId(), ErrorCode.TYPE_CONSTRAINT_VIOLATION, e.getMessage());
         }
     }
 

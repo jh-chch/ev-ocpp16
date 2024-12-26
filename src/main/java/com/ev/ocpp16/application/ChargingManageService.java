@@ -173,7 +173,7 @@ public class ChargingManageService {
                 findMember,
                 startDatetime,
                 endDatetime,
-                meterValue,
+                BigDecimal.ZERO,
                 ChargeStep.START_TRANSACTION);
 
         // 충전 이력 상세 생성
@@ -194,15 +194,16 @@ public class ChargingManageService {
      * @param meterValue    충전 미터 값
      * @param chargeStep    충전 단계
      * @throws ChargeHistoryNotFoundException
+     * @throws IllegalArgumentException
      */
     public void processMeterValues(Integer transactionId, LocalDateTime timestamp, BigDecimal meterValue,
-            ChargeStep chargeStep) throws ChargeHistoryNotFoundException {
+            ChargeStep chargeStep) throws ChargeHistoryNotFoundException, IllegalArgumentException {
         // 충전 이력 조회
         ChargeHistory findChargeHistory = historyQueryService.getChargeHistory(transactionId);
 
-        // 마지막 충전 이력 상세 조회
+        // 첫번째 충전 이력 상세 조회
         ChargeHistoryDetail findChargeHistoryDetail = historyQueryService
-                .getLastChargeHistoryDetail(transactionId);
+                .getFirstChargeHistoryDetail(transactionId);
 
         // 충전 이력 업데이트
         historyCommandService.updateChargeHistory(

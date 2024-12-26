@@ -68,16 +68,16 @@ public class ChargeHistory extends BaseTimeEntity {
         this.member = member;
     }
 
-    public void changeMeterValueAndChargeStep(BigDecimal newMeterValue, BigDecimal lastMeterValue,
+    public void changeMeterValueAndChargeStep(BigDecimal newMeterValue, BigDecimal firstMeterValue,
             LocalDateTime newEndDatetime, ChargeStep newChargeStep) {
-        if (newMeterValue.compareTo(lastMeterValue) < 0) {
+        if (newMeterValue.compareTo(firstMeterValue) < 0) {
             throw new IllegalArgumentException("새로운 충전량은 이전 충전량보다 작을 수 없습니다.");
         }
         if (newEndDatetime.isBefore(this.endDatetime)) {
-            throw new IllegalArgumentException("종료 시간은 현재 종료 시간보다 이전일 수 없습니다.");
+            throw new IllegalArgumentException("새로운 종료 시간은 이전 종료 시간보다 이전일 수 없습니다.");
         }
 
-        this.totalMeterValue = this.totalMeterValue.add(newMeterValue).subtract(lastMeterValue);
+        this.totalMeterValue = newMeterValue.subtract(firstMeterValue);
         this.endDatetime = newEndDatetime;
         this.chargeStep = newChargeStep;
     }

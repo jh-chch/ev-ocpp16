@@ -118,19 +118,21 @@ public class HistoryCommandService {
      * @param newMeterValue  새로운 미터 값
      * @param timestamp      업데이트 시간
      * @param chargeStep     충전 단계
+     * 
+     * @throws IllegalArgumentException 충전 이력 업데이트 중 오류가 발생했습니다.
      */
     public void updateChargeHistory(
             ChargeHistory chargeHistory,
-            BigDecimal lastMeterValue,
+            BigDecimal firstMeterValue,
             BigDecimal newMeterValue,
             LocalDateTime timestamp,
-            ChargeStep chargeStep) {
+            ChargeStep chargeStep) throws IllegalArgumentException {
         if (chargeHistory == null) {
             return;
         }
 
         // 충전 이력 수정
-        chargeHistory.changeMeterValueAndChargeStep(newMeterValue, lastMeterValue, timestamp, chargeStep);
+        chargeHistory.changeMeterValueAndChargeStep(newMeterValue, firstMeterValue, timestamp, chargeStep);
 
         // 충전 이력 저장
         chargeHistoryRepository.save(chargeHistory);

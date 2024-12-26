@@ -43,9 +43,9 @@ public class HistoryQueryService {
      * @return
      * @throws ChargeHistoryNotFoundException
      */
-    public ChargeHistoryDetail getLastChargeHistoryDetail(Integer transactionId) throws ChargeHistoryNotFoundException {
+    public ChargeHistoryDetail getFirstChargeHistoryDetail(Integer transactionId) throws ChargeHistoryNotFoundException {
         return chargeHistoryDetailRepository
-                .findFirstByChargeHistoryIdOrderByIdDesc(transactionId)
+                .findFirstByChargeHistoryIdOrderById(transactionId)
                 .orElseThrow(() -> new ChargeHistoryNotFoundException("ChargeHistoryDetail not found"));
     }
 
