@@ -45,7 +45,7 @@ public class ApiExceptionAdvice {
 						fieldError.getField(),
 						fieldError.getDefaultMessage(),
 						fieldError.getRejectedValue()))
-				.errorCode("Bad Request")
+				.errorCode(ApiExceptionStatus.INVALID_VALUE.getResultCode())
 				.build();
 
 		log.error("Validation error: {}", errorResponse);
@@ -66,7 +66,7 @@ public class ApiExceptionAdvice {
 						field,
 						violation.getResolvableErrors().get(0).getDefaultMessage(),
 						violation.getArgument()))
-				.errorCode("Bad Request")
+				.errorCode(ApiExceptionStatus.INVALID_VALUE.getResultCode())
 				.build();
 
 		log.error("Validation error: {}", errorResponse);
