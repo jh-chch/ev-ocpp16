@@ -8,13 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ev.ocpp16.domain.chargingManagement.dto.ChargerQueryDTO;
 import com.ev.ocpp16.domain.chargingManagement.dto.ChargersQueryDTO;
 import com.ev.ocpp16.domain.chargingManagement.entity.ChargeHistory;
-import com.ev.ocpp16.domain.chargingManagement.entity.Charger;
-import com.ev.ocpp16.domain.chargingManagement.exception.ChargerException;
 import com.ev.ocpp16.domain.chargingManagement.service.ChargerQueryService;
 import com.ev.ocpp16.domain.chargingManagement.service.HistoryQueryService;
 import com.ev.ocpp16.web.dto.ChargeHistoryQueryDTO;
-import com.ev.ocpp16.web.exception.ApiException;
-import com.ev.ocpp16.web.exception.ApiExceptionStatus;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,17 +29,7 @@ public class ChargeInfoService {
      * @return 충전기 목록
      */
     public ChargersQueryDTO.Response getChargers(ChargersQueryDTO.Request request) {
-        try {
-            List<Charger> chargers = chargerQueryService.getChargers(request.getSiteName());
-
-            if (chargers.isEmpty()) {
-                throw new ApiException(ApiExceptionStatus.NOT_FOUND_CHARGER);
-            }
-
-            return ChargersQueryDTO.Response.of(chargers);
-        } catch (ChargerException e) {
-            throw new ApiException(ApiExceptionStatus.INVALID_VALUE, e.getMessage());
-        }
+        return ChargersQueryDTO.Response.of(chargerQueryService.getChargers(request.getSiteName()));
     }
 
     /**
@@ -54,13 +40,8 @@ public class ChargeInfoService {
      * @return 충전기 상세
      */
     public ChargerQueryDTO.Response getCharger(String serialNumber, ChargerQueryDTO.Request request) {
-        try {
-            return ChargerQueryDTO.Response.of(
-                    chargerQueryService.getCharger(serialNumber, request.getSiteName())
-                            .orElseThrow(() -> new ApiException(ApiExceptionStatus.NOT_FOUND_CHARGER)));
-        } catch (ChargerException e) {
-            throw new ApiException(ApiExceptionStatus.INVALID_VALUE, e.getMessage());
-        }
+        return ChargerQueryDTO.Response.of(
+                chargerQueryService.getCharger(serialNumber, request.getSiteName()).orElse(null));
     }
 
     /**
@@ -76,11 +57,6 @@ public class ChargeInfoService {
                 idToken,
                 request.getStartDatetime(),
                 request.getEndDatetime());
-
-        if (memberChargeHistories.isEmpty()) {
-            throw new ApiException(ApiExceptionStatus.NOT_FOUND_CHARGE_HISTORY);
-        }
-
         return ChargeHistoryQueryDTO.Response.of(memberChargeHistories);
     }
 }

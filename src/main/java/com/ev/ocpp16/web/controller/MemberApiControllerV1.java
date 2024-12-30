@@ -34,7 +34,7 @@ public class MemberApiControllerV1 {
     // 회원 충전 이력 조회
     @GetMapping("/{idToken}/charge-history")
     public ResponseEntity<ChargeHistoryQueryDTO.Response> getChargeHistory(
-            @PathVariable @Length(max = 36) String idToken,
+            @PathVariable("idToken") @Length(max = 36) String idToken,
             @Validated @ModelAttribute ChargeHistoryQueryDTO.Request request) {
         return ResponseEntity.ok(chargeInfoService.getChargeHistory(idToken, request));
     }
