@@ -6,9 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ev.ocpp16.domain.member.dto.MemberQueryDTO;
 import com.ev.ocpp16.domain.member.entity.Member;
 import com.ev.ocpp16.domain.member.entity.enums.Roles;
-import com.ev.ocpp16.domain.member.exception.DuplicateMemberException;
-import com.ev.ocpp16.domain.member.exception.InvalidMemberException;
-import com.ev.ocpp16.domain.member.exception.MemberException;
 import com.ev.ocpp16.domain.member.exception.MemberNotFoundException;
 import com.ev.ocpp16.domain.member.service.MemberCommandService;
 import com.ev.ocpp16.domain.member.service.MemberQueryService;
@@ -52,12 +49,8 @@ public class MembershipService {
             Member member = request.toEntity(Roles.ROLE_USER);
             Member savedMember = memberCommandService.saveMember(member);
             return new MemberSaveDTO.Response(savedMember);
-        } catch (InvalidMemberException e) {
-            throw new ApiException(ApiExceptionStatus.INVALID_VALUE, e.getMessage());
-        } catch (DuplicateMemberException e) {
+        } catch (IllegalArgumentException e) {
             throw new ApiException(ApiExceptionStatus.DUPLICATE_VALUE, e.getMessage());
-        } catch (MemberException e) {
-            throw new ApiException(ApiExceptionStatus.INVALID_VALUE, e.getMessage());
         }
     }
 

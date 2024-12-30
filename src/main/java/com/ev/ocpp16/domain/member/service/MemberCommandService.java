@@ -3,12 +3,9 @@ package com.ev.ocpp16.domain.member.service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import com.ev.ocpp16.domain.member.entity.Member;
-import com.ev.ocpp16.domain.member.exception.DuplicateMemberException;
-import com.ev.ocpp16.domain.member.exception.InvalidMemberException;
-import com.ev.ocpp16.domain.member.exception.MemberException;
+import com.ev.ocpp16.domain.member.exception.MemberDuplicateException;
 import com.ev.ocpp16.domain.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -26,15 +23,10 @@ public class MemberCommandService {
 	 * 
 	 * @param member 회원
 	 * @return 저장된 회원
-	 * @throws MemberException
+	 * @throws MemberDuplicateException
 	 */
-	public Member saveMember(Member member) throws MemberException {
-		if (member == null) {
-			throw new MemberException("회원 정보가 올바르지 않습니다.");
-		}
-
+	public Member saveMember(Member member) throws MemberDuplicateException {
 		validateMemberSave(member.getIdToken(), member.getEmail(), member.getPhoneNumber(), member.getCarNumber());
-
 		member.changeEncodedPassword(passwordEncoder.encode(member.getPassword()));
 		return memberRepository.save(member);
 	}
@@ -46,35 +38,24 @@ public class MemberCommandService {
 	 * @param email
 	 * @param phoneNumber
 	 * @param carNumber
-	 * @throws InvalidMemberException
-	 * @throws DuplicateMemberException
+	 * @throws MemberDuplicateException
 	 */
-	public void validateMemberSave(String idToken, String email, String phoneNumber, String carNumber)
-			throws InvalidMemberException, DuplicateMemberException {
-
-		if (!StringUtils.hasText(idToken) || !StringUtils.hasText(email) || !StringUtils.hasText(phoneNumber)
-				|| !StringUtils.hasText(carNumber)) {
-			throw new InvalidMemberException("입력값이 올바르지 않습니다.");
-		}
-
-		if (idToken.length() != 36 || email.length() > 100 || phoneNumber.length() > 15 || carNumber.length() > 15) {
-			throw new InvalidMemberException("입력값이 올바르지 않습니다.");
-		}
-
+	private void validateMemberSave(String idToken, String email, String phoneNumber, String carNumber)
+			throws IllegalArgumentException {
 		if (memberRepository.existsByIdToken(idToken)) {
-			throw new DuplicateMemberException("중복된 토큰입니다.");
+			throw new MemberDuplicateException("중복된 토큰입니다.");
 		}
 
 		if (memberRepository.existsByEmail(email)) {
-			throw new DuplicateMemberException("중복된 이메일입니다.");
+			throw new MemberDuplicateException("중복된 이메일입니다.");
 		}
 
 		if (memberRepository.existsByPhoneNumber(phoneNumber)) {
-			throw new DuplicateMemberException("중복된 전화번호입니다.");
+			throw new MemberDuplicateException("중복된 전화번호입니다.");
 		}
 
 		if (memberRepository.existsByCarNumber(carNumber)) {
-			throw new DuplicateMemberException("중복된 차량번호입니다.");
+			throw new MemberDuplicateException("중복된 차량번호입니다.");
 		}
 	}
 }

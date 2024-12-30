@@ -48,7 +48,7 @@ public class Member extends BaseTimeEntity implements UserDetails {
     @Column(name = "password", nullable = false, length = 100)
     private String password;
 
-    @Column(name = "id_token", nullable = false, length = 36, unique = true)
+    @Column(name = "id_token", nullable = false, length = 20, unique = true)
     private String idToken;
 
     @Column(name = "phone_number", nullable = false, length = 15, unique = true)

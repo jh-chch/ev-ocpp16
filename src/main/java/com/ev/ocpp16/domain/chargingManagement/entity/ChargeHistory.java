@@ -2,8 +2,11 @@ package com.ev.ocpp16.domain.chargingManagement.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.ev.ocpp16.domain.chargingManagement.entity.enums.ChargeStep;
+import com.ev.ocpp16.domain.chargingManagement.exception.ChargeHistoryException;
 import com.ev.ocpp16.domain.common.entity.BaseTimeEntity;
 import com.ev.ocpp16.domain.member.entity.Member;
 
@@ -17,6 +20,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
@@ -56,28 +60,34 @@ public class ChargeHistory extends BaseTimeEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    @OneToMany(mappedBy = "chargeHistory")
+    private List<ChargeHistoryDetail> chargeHistoryDetails = new ArrayList<>();
+
     @Builder
-    public ChargeHistory(LocalDateTime startDatetime, LocalDateTime endDatetime, BigDecimal totalMeterValue,
-            BigDecimal totalPrice, ChargeStep chargeStep, ChargerConnector chargerConnector, Member member) {
-        this.startDatetime = startDatetime;
-        this.endDatetime = endDatetime;
-        this.totalMeterValue = totalMeterValue;
-        this.totalPrice = totalPrice;
-        this.chargeStep = chargeStep;
+    public ChargeHistory(
+            ChargerConnector chargerConnector,
+            Member member,
+            LocalDateTime startDatetime) {
         this.chargerConnector = chargerConnector;
         this.member = member;
+        this.startDatetime = startDatetime;
+        this.endDatetime = startDatetime;
+        this.totalMeterValue = BigDecimal.ZERO;
+        this.totalPrice = BigDecimal.ZERO;
+        this.chargeStep = ChargeStep.START_TRANSACTION;
     }
 
-    public void changeMeterValueAndChargeStep(BigDecimal newMeterValue, BigDecimal firstMeterValue,
-            LocalDateTime newEndDatetime, ChargeStep newChargeStep) {
-        if (newMeterValue.compareTo(firstMeterValue) < 0) {
-            throw new IllegalArgumentException("새로운 충전량은 이전 충전량보다 작을 수 없습니다.");
-        }
+    public void changeHistory(
+            BigDecimal newMeterValue,
+            LocalDateTime newEndDatetime,
+            ChargeStep newChargeStep) {
         if (newEndDatetime.isBefore(this.endDatetime)) {
-            throw new IllegalArgumentException("새로운 종료 시간은 이전 종료 시간보다 이전일 수 없습니다.");
+            throw new ChargeHistoryException("마지막 종료 시간보다 이전일 수 없습니다.");
         }
 
-        this.totalMeterValue = newMeterValue.subtract(firstMeterValue);
+        this.totalMeterValue = newMeterValue.subtract(this.chargeHistoryDetails.get(0).getMeterValue());
+        this.totalPrice = this.chargeHistoryDetails.get(this.chargeHistoryDetails.size() - 1).getChargingRate()
+                .subtract(this.chargeHistoryDetails.get(0).getChargingRate());
         this.endDatetime = newEndDatetime;
         this.chargeStep = newChargeStep;
     }

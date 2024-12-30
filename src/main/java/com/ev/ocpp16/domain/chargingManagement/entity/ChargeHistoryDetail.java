@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.ev.ocpp16.domain.chargingManagement.entity.enums.ChargeStep;
+import com.ev.ocpp16.domain.chargingManagement.exception.ChargeHistoryException;
 import com.ev.ocpp16.domain.common.entity.BaseTimeEntity;
+import com.ev.ocpp16.domain.site.entity.SiteRate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -42,21 +44,41 @@ public class ChargeHistoryDetail extends BaseTimeEntity {
     @Column(name = "meter_value", nullable = false, precision = 10, scale = 2)
     private BigDecimal meterValue;
 
-    @Column(name = "unit_price", nullable = false)
-    private BigDecimal unitPrice;
+    @Column(name = "charging_rate", nullable = false, precision = 10, scale = 2)
+    private BigDecimal chargingRate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "charge_history_id", nullable = false)
     private ChargeHistory chargeHistory;
 
     @Builder
-    public ChargeHistoryDetail(ChargeStep chargeStep, LocalDateTime actionDatetime, BigDecimal meterValue,
-            BigDecimal unitPrice, ChargeHistory chargeHistory) {
-        this.chargeStep = chargeStep;
-        this.actionDatetime = actionDatetime;
-        this.meterValue = meterValue;
-        this.unitPrice = unitPrice;
+    public ChargeHistoryDetail(
+            ChargeHistory chargeHistory,
+            SiteRate siteRate,
+            BigDecimal meterValue,
+            LocalDateTime actionDatetime,
+            ChargeStep chargeStep) {
         this.chargeHistory = chargeHistory;
+        this.chargingRate = calculateChargingPrice(siteRate, meterValue);
+        this.meterValue = meterValue;
+        this.actionDatetime = actionDatetime;
+        this.chargeStep = chargeStep;
     }
 
+    private BigDecimal calculateChargingPrice(SiteRate siteRate, BigDecimal meterValue)
+            throws ChargeHistoryException {
+        if (siteRate.getMemberDiscount().compareTo(BigDecimal.ZERO) < 0
+                || siteRate.getMemberDiscount().compareTo(BigDecimal.valueOf(100)) > 0
+                || siteRate.getNonMemberDiscount().compareTo(BigDecimal.ZERO) < 0
+                || siteRate.getNonMemberDiscount().compareTo(BigDecimal.valueOf(100)) > 0) {
+            throw new ChargeHistoryException("할인율은 0~100 사이의 값이어야 합니다.");
+        }
+
+        boolean isMember = !"".equals(this.chargeHistory.getMember().getIdToken());
+        BigDecimal discountRate = isMember ? siteRate.getMemberDiscount() : siteRate.getNonMemberDiscount();
+
+        return siteRate.getRatePerWh()
+                .multiply(meterValue)
+                .multiply(BigDecimal.ONE.subtract(discountRate.divide(BigDecimal.valueOf(100))));
+    }
 }

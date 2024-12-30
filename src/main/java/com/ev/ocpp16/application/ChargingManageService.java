@@ -8,13 +8,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ev.ocpp16.domain.chargingManagement.dto.ChargerInfoUpdateRequestDTO;
 import com.ev.ocpp16.domain.chargingManagement.entity.ChargeHistory;
-import com.ev.ocpp16.domain.chargingManagement.entity.ChargeHistoryDetail;
 import com.ev.ocpp16.domain.chargingManagement.entity.Charger;
 import com.ev.ocpp16.domain.chargingManagement.entity.ChargerConnector;
 import com.ev.ocpp16.domain.chargingManagement.entity.enums.ChargeStep;
 import com.ev.ocpp16.domain.chargingManagement.entity.enums.ChargerErrorCode;
 import com.ev.ocpp16.domain.chargingManagement.entity.enums.ConnectionStatus;
 import com.ev.ocpp16.domain.chargingManagement.entity.enums.ConnectorStatus;
+import com.ev.ocpp16.domain.chargingManagement.exception.ChargeHistoryException;
 import com.ev.ocpp16.domain.chargingManagement.exception.ChargeHistoryNotFoundException;
 import com.ev.ocpp16.domain.chargingManagement.exception.ChargerConnectorNotFoundException;
 import com.ev.ocpp16.domain.chargingManagement.exception.ChargerException;
@@ -27,6 +27,9 @@ import com.ev.ocpp16.domain.member.entity.Member;
 import com.ev.ocpp16.domain.member.exception.MemberException;
 import com.ev.ocpp16.domain.member.exception.MemberNotFoundException;
 import com.ev.ocpp16.domain.member.service.MemberQueryService;
+import com.ev.ocpp16.domain.site.entity.SiteRate;
+import com.ev.ocpp16.domain.site.exception.SiteRateException;
+import com.ev.ocpp16.domain.site.service.SiteRateQueryService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -40,6 +43,7 @@ public class ChargingManageService {
     private final ChargerCommandService chargerCommandService;
     private final HistoryQueryService historyQueryService;
     private final HistoryCommandService historyCommandService;
+    private final SiteRateQueryService siteRateQueryService;
 
     /*
      * 모든 충전기 연결 상태 업데이트
@@ -50,26 +54,24 @@ public class ChargingManageService {
         chargerCommandService.updateAllChargerConnectionStatus(connectionStatus);
     }
 
-    /*
+    /**
      * 충전기 상태 업데이트
      * 
      * @param chargerIdentifier 충전기 식별자
-     * 
-     * @param connectionStatus 충전기 연결 상태
-     * 
+     * @param connectionStatus  충전기 연결 상태
      * @throws ChargerNotFoundException
      * @throws ChargerException
      */
-    public void updateChargerConnectionStatus(String chargerIdentifier, ConnectionStatus connectionStatus) throws ChargerNotFoundException, ChargerException  {
+    public void updateChargerConnectionStatus(String chargerIdentifier, ConnectionStatus connectionStatus)
+            throws ChargerNotFoundException, ChargerException {
         Charger findCharger = chargerQueryService.validateChargerForCharging(chargerIdentifier);
         chargerCommandService.updateChargerConnectionStatus(findCharger, connectionStatus);
     }
 
-    /*
+    /**
      * 충전기 조회
      * 
      * @param chargerIdentifier 충전기 식별자
-     * 
      * @throws ChargerNotFoundException
      * @throws ChargerException
      */
@@ -117,7 +119,8 @@ public class ChargingManageService {
             String chargerIdentifier,
             Integer connectorId,
             ConnectorStatus connectorStatus,
-            ChargerErrorCode errorCode) throws ChargerNotFoundException, ChargerConnectorNotFoundException, ChargerException {
+            ChargerErrorCode errorCode)
+            throws ChargerNotFoundException, ChargerConnectorNotFoundException, ChargerException {
 
         // 충전기 및 커텍터 조회
         Charger findCharger = chargerQueryService.validateChargerForCharging(chargerIdentifier);
@@ -137,7 +140,6 @@ public class ChargingManageService {
      * @param connectorId       충전기 커넥터 ID
      * @param idToken           회원 ID
      * @param startDatetime     충전 시작 시간
-     * @param endDatetime       충전 종료 시간
      * @param meterValue        충전 미터 값
      * @return 충전 이력 ID
      * @throws ChargerNotFoundException
@@ -150,10 +152,9 @@ public class ChargingManageService {
             Integer connectorId,
             String idToken,
             LocalDateTime startDatetime,
-            LocalDateTime endDatetime,
             BigDecimal meterValue)
             throws ChargerNotFoundException, ChargerConnectorNotFoundException, ChargerException,
-            MemberNotFoundException {
+            MemberNotFoundException, SiteRateException {
 
         // 충전기 및 충전기 커넥터 조회
         Charger findCharger = chargerQueryService.validateChargerForCharging(chargerIdentifier);
@@ -171,14 +172,17 @@ public class ChargingManageService {
         ChargeHistory savedChargeHistory = historyCommandService.createChargeHistory(
                 findChargerConnector,
                 findMember,
-                startDatetime,
-                endDatetime,
-                BigDecimal.ZERO,
-                ChargeStep.START_TRANSACTION);
+                startDatetime);
+
+        // 사이트 단가 조회
+        SiteRate findSiteRate = siteRateQueryService.getSiteRate(
+                savedChargeHistory.getChargerConnector().getCharger().getSite().getId(),
+                startDatetime.getHour());
 
         // 충전 이력 상세 생성
         historyCommandService.createChargeHistoryDetail(
                 savedChargeHistory,
+                findSiteRate,
                 meterValue,
                 startDatetime,
                 ChargeStep.START_TRANSACTION);
@@ -194,30 +198,38 @@ public class ChargingManageService {
      * @param meterValue    충전 미터 값
      * @param chargeStep    충전 단계
      * @throws ChargeHistoryNotFoundException
-     * @throws IllegalArgumentException
+     * @throws SiteRateException
+     * @throws ChargeHistoryException
      */
-    public void processMeterValues(Integer transactionId, LocalDateTime timestamp, BigDecimal meterValue,
-            ChargeStep chargeStep) throws ChargeHistoryNotFoundException, IllegalArgumentException {
+    public void processMeterValues(
+            Integer transactionId,
+            LocalDateTime timestamp,
+            BigDecimal meterValue,
+            ChargeStep chargeStep)
+            throws ChargeHistoryNotFoundException, SiteRateException, ChargeHistoryException {
         // 충전 이력 조회
         ChargeHistory findChargeHistory = historyQueryService.getChargeHistory(transactionId);
 
-        // 첫번째 충전 이력 상세 조회
-        ChargeHistoryDetail findChargeHistoryDetail = historyQueryService
-                .getFirstChargeHistoryDetail(transactionId);
-
-        // 충전 이력 업데이트
-        historyCommandService.updateChargeHistory(
-                findChargeHistory,
-                findChargeHistoryDetail.getMeterValue(),
-                meterValue,
-                timestamp,
-                chargeStep);
+        // 사이트 단가 조회
+        SiteRate findSiteRate = siteRateQueryService.getSiteRate(
+                findChargeHistory.getChargerConnector().getCharger().getSite().getId(),
+                timestamp.getHour());
 
         // 충전 이력 상세 저장
         historyCommandService.createChargeHistoryDetail(
                 findChargeHistory,
+                findSiteRate,
                 meterValue,
                 timestamp,
                 chargeStep);
+
+        // 충전 이력 업데이트
+        historyCommandService.updateChargeHistory(
+                findChargeHistory,
+                meterValue,
+                timestamp,
+                chargeStep);
+
     }
+
 }

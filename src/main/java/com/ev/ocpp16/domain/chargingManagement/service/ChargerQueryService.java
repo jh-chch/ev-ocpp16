@@ -82,17 +82,8 @@ public class ChargerQueryService {
      * 
      * @param siteName
      * @return
-     * @throws ChargerException
      */
-    public List<Charger> getChargers(String siteName) throws ChargerException {
-        if (siteName == null) {
-            throw new ChargerException("사이트 이름이 필요합니다.");
-        }
-
-        if (siteName.length() > 30) {
-            throw new ChargerException("사이트 이름은 30자 이하로 입력해야 합니다.");
-        }
-
+    public List<Charger> getChargers(String siteName) {
         return chargerQueryRepository.findChargers(siteName);
     }
 
@@ -102,21 +93,8 @@ public class ChargerQueryService {
      * @param serialNumber
      * @param siteName
      * @return
-     * @throws ChargerException
      */
-    public Optional<Charger> getCharger(String serialNumber, String siteName) throws ChargerException {
-        if (serialNumber == null || siteName == null) {
-            throw new ChargerException("시리얼 번호와 사이트 이름이 필요합니다.");
-        }
-
-        if (serialNumber.length() > 30) {
-            throw new ChargerException("시리얼 번호는 30자 이하로 입력해야 합니다.");
-        }
-
-        if (siteName.length() > 30) {
-            throw new ChargerException("사이트 이름은 30자 이하로 입력해야 합니다.");
-        }
-
+    public Optional<Charger> getCharger(String serialNumber, String siteName) {
         return chargerQueryRepository.findCharger(serialNumber, siteName);
     }
 

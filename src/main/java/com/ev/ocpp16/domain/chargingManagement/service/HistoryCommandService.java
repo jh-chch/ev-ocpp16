@@ -12,10 +12,12 @@ import com.ev.ocpp16.domain.chargingManagement.entity.ChargerConnector;
 import com.ev.ocpp16.domain.chargingManagement.entity.ChargerErrorHistory;
 import com.ev.ocpp16.domain.chargingManagement.entity.enums.ChargeStep;
 import com.ev.ocpp16.domain.chargingManagement.entity.enums.ChargerErrorCode;
+import com.ev.ocpp16.domain.chargingManagement.exception.ChargeHistoryException;
 import com.ev.ocpp16.domain.chargingManagement.repository.ChargeHistoryDetailRepository;
 import com.ev.ocpp16.domain.chargingManagement.repository.ChargeHistoryRepository;
 import com.ev.ocpp16.domain.chargingManagement.repository.ChargerErrorHistoryRepository;
 import com.ev.ocpp16.domain.member.entity.Member;
+import com.ev.ocpp16.domain.site.entity.SiteRate;
 
 import lombok.RequiredArgsConstructor;
 
@@ -52,32 +54,20 @@ public class HistoryCommandService {
     /**
      * 충전 이력 생성
      * 
-     * @param chargerConnector
-     * @param member
-     * @param startDatetime
-     * @param endDatetime
-     * @param meterValue
-     * @return
+     * @param chargerConnector 충전기 커넥터
+     * @param member           충전 중인 회원
+     * @param startDatetime    충전 시작 시간
+     * @return 충전 이력
      */
     public ChargeHistory createChargeHistory(
             ChargerConnector chargerConnector,
             Member member,
-            LocalDateTime startDatetime,
-            LocalDateTime endDatetime,
-            BigDecimal meterValue,
-            ChargeStep chargeStep) {
-        if (chargerConnector == null || member == null) {
-            return null;
-        }
-
+            LocalDateTime startDatetime) {
+        // 충전 이력 생성
         ChargeHistory chargeHistory = ChargeHistory.builder()
-                .startDatetime(startDatetime)
-                .endDatetime(endDatetime)
-                .totalMeterValue(meterValue)
-                .totalPrice(BigDecimal.ZERO)
-                .chargeStep(chargeStep)
                 .chargerConnector(chargerConnector)
                 .member(member)
+                .startDatetime(startDatetime)
                 .build();
 
         return chargeHistoryRepository.save(chargeHistory);
@@ -86,25 +76,25 @@ public class HistoryCommandService {
     /**
      * 충전 이력 상세 생성
      * 
-     * @param chargeHistory
-     * @param meterValue
-     * @param timestamp
+     * @param chargeHistory  충전 이력
+     * @param siteRate       사이트 단가
+     * @param meterValue     충전량
+     * @param actionDatetime 충전량이 들어온 시간
+     * @param chargeStep     충전 단계
+     * @throws ChargeHistoryException
      */
     public void createChargeHistoryDetail(
             ChargeHistory chargeHistory,
+            SiteRate siteRate,
             BigDecimal meterValue,
-            LocalDateTime timestamp,
-            ChargeStep chargeStep) {
-        if (chargeHistory == null) {
-            return;
-        }
-
+            LocalDateTime actionDatetime,
+            ChargeStep chargeStep) throws ChargeHistoryException {
         ChargeHistoryDetail detail = ChargeHistoryDetail.builder()
                 .chargeHistory(chargeHistory)
-                .chargeStep(chargeStep)
-                .actionDatetime(timestamp)
+                .siteRate(siteRate)
                 .meterValue(meterValue)
-                .unitPrice(BigDecimal.ZERO)
+                .actionDatetime(actionDatetime)
+                .chargeStep(chargeStep)
                 .build();
 
         chargeHistoryDetailRepository.save(detail);
@@ -113,26 +103,19 @@ public class HistoryCommandService {
     /**
      * 충전 이력 업데이트
      * 
-     * @param chargeHistory  충전 이력
-     * @param lastMeterValue 이전 미터 값
-     * @param newMeterValue  새로운 미터 값
-     * @param timestamp      업데이트 시간
-     * @param chargeStep     충전 단계
-     * 
-     * @throws IllegalArgumentException 충전 이력 업데이트 중 오류가 발생했습니다.
+     * @param chargeHistory 업데이트할 충전 이력
+     * @param newMeterValue 들어온 새로운 미터 값
+     * @param timestamp     충전 업데이트 시간
+     * @param chargeStep    충전 단계
+     * @throws ChargeHistoryException
      */
     public void updateChargeHistory(
             ChargeHistory chargeHistory,
-            BigDecimal firstMeterValue,
             BigDecimal newMeterValue,
             LocalDateTime timestamp,
-            ChargeStep chargeStep) throws IllegalArgumentException {
-        if (chargeHistory == null) {
-            return;
-        }
-
+            ChargeStep chargeStep) throws ChargeHistoryException {
         // 충전 이력 수정
-        chargeHistory.changeMeterValueAndChargeStep(newMeterValue, firstMeterValue, timestamp, chargeStep);
+        chargeHistory.changeHistory(newMeterValue, timestamp, chargeStep);
 
         // 충전 이력 저장
         chargeHistoryRepository.save(chargeHistory);

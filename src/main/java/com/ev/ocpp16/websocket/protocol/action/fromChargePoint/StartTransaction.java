@@ -40,7 +40,6 @@ public class StartTransaction implements ActionHandler<StartTransactionRequest, 
                     callRequest.getPayload().getConnectorId(),
                     callRequest.getPayload().getIdTag(),
                     DateTimeUtil.iso8601ToKoreanLocalDateTime(callRequest.getPayload().getTimestamp()),
-                    DateTimeUtil.iso8601ToKoreanLocalDateTime(callRequest.getPayload().getTimestamp()),
                     BigDecimal.valueOf(callRequest.getPayload().getMeterStart()));
 
             return new StartTransactionResponse(new IdTagInfo(AuthorizationStatus.Accepted), transactionId);

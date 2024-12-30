@@ -9,7 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ev.ocpp16.application.ChargingManageService;
 import com.ev.ocpp16.domain.chargingManagement.entity.enums.ChargeStep;
+import com.ev.ocpp16.domain.chargingManagement.exception.ChargeHistoryException;
 import com.ev.ocpp16.domain.chargingManagement.exception.ChargeHistoryNotFoundException;
+import com.ev.ocpp16.domain.site.exception.SiteRateException;
 import com.ev.ocpp16.global.utils.DateTimeUtil;
 import com.ev.ocpp16.websocket.dto.CallRequest;
 import com.ev.ocpp16.websocket.dto.PathInfo;
@@ -52,9 +54,12 @@ public class MeterValues implements ActionHandler<MeterValuesRequest, MeterValue
         } catch (ChargeHistoryNotFoundException e) {
             throw new OcppException(callRequest.getUniqueId(), ErrorCode.OCCURENCE_CONSTRAINT_VIOLATION,
                     "충전 이력을 찾을 수 없습니다.");
-        } catch (IllegalArgumentException e) {
+        } catch (ChargeHistoryException e) {
             throw new OcppException(callRequest.getUniqueId(), ErrorCode.TYPE_CONSTRAINT_VIOLATION, e.getMessage());
+        } catch (SiteRateException e) {
+            throw new OcppException(callRequest.getUniqueId(), ErrorCode.GENERIC_ERROR, e.getMessage());
         }
+
     }
 
     @Override
