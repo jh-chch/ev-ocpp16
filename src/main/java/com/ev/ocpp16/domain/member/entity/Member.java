@@ -11,15 +11,19 @@ import com.ev.ocpp16.domain.common.entity.BaseTimeEntity;
 import com.ev.ocpp16.domain.member.entity.enums.AccountStatus;
 import com.ev.ocpp16.domain.member.entity.enums.Address;
 import com.ev.ocpp16.domain.member.entity.enums.Roles;
+import com.ev.ocpp16.domain.site.entity.Site;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -67,6 +71,10 @@ public class Member extends BaseTimeEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(name = "account_status", nullable = false, columnDefinition = "enum('ACTIVE','LOCKED','INACTIVE') default 'ACTIVE'")
     private AccountStatus accountStatus;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "site_id")
+    private Site site;
 
     public void changeEncodedPassword(String password) {
         this.password = password;
