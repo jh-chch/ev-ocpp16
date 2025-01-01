@@ -61,8 +61,6 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
 
         return PathValidationResult.builder()
                 .userType(pathVariables.get("userType"))
-                .version(pathVariables.get("version"))
-                .siteIdentifier(pathVariables.get("siteIdentifier"))
                 .chargerIdentifier(pathVariables.get("chargerIdentifier"))
                 .valid(true)
                 .build();
@@ -98,8 +96,6 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
     public PathInfo buildPathInfoFromSession(PathValidationResult result) {
         return PathInfo.builder()
                 .userType(result.getUserType())
-                .version(result.getVersion())
-                .siteIdentifier(result.getSiteIdentifier())
                 .chargerIdentifier(result.getChargerIdentifier())
                 .build();
     }
@@ -107,16 +103,12 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
     private String buildSessionKey(PathValidationResult result) {
         return String.join(PATH_SEPARATOR,
                 result.getUserType(),
-                result.getVersion(),
-                String.valueOf(result.getSiteIdentifier()),
                 String.valueOf(result.getChargerIdentifier()));
     }
 
     private String buildMdcKey(PathValidationResult result) {
         return String.join(MDC_SEPARATOR,
                 result.getUserType(),
-                result.getVersion(),
-                String.valueOf(result.getSiteIdentifier()),
                 String.valueOf(result.getChargerIdentifier()));
     }
 

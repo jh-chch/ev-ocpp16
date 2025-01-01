@@ -73,7 +73,6 @@ public class MessageSender {
 
     private boolean isTargetSession(String userType, PathInfo pathInfo, PathInfo targetPathInfo) {
         return userType.equals(targetPathInfo.getUserType())
-                && pathInfo.getSiteIdentifier().equals(targetPathInfo.getSiteIdentifier())
                 && pathInfo.getChargerIdentifier().equals(targetPathInfo.getChargerIdentifier());
     }
 }

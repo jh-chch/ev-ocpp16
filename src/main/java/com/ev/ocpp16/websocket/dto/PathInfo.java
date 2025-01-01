@@ -15,8 +15,6 @@ import lombok.ToString;
 @Builder
 public class PathInfo {
     private final String userType;
-    private final String version;
-    private final String siteIdentifier;
     private final String chargerIdentifier;
 
     public static PathInfo from(WebSocketSession session) {

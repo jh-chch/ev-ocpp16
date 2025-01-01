@@ -1,7 +1,8 @@
 package com.ev.ocpp16.websocket;
 
 public interface Constants {
-    String REGIST_PATH = "/{userType}/{version}/{siteIdentifier}/{chargerIdentifier}";
+    // String REGIST_PATH = "/{userType}/{version}/{siteIdentifier}/{chargerIdentifier}";
+    String REGIST_PATH = "/{userType}/{chargerIdentifier}";
 
     String PATH_INFO = "pathInfo";
     String SESSION_KEY = "sessionKey";

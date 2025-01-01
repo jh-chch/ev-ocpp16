@@ -7,8 +7,8 @@ import lombok.Getter;
 @Builder
 public class PathValidationResult {
     private final String userType;
-    private final String version;
-    private final String siteIdentifier;
+    // private final String version;
+    // private final String siteIdentifier;
     private final String chargerIdentifier;
     private final boolean valid;
 
