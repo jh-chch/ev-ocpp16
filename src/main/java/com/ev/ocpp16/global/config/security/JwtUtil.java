@@ -17,7 +17,7 @@ public class JwtUtil {
 
     public static TokenResponse generateToken(String email) {
         LocalDateTime issuedAt = DateTimeUtil.currentKoreanLocalDateTime();
-        LocalDateTime expiration = issuedAt.plusMinutes(10);
+        LocalDateTime expiration = issuedAt.plusHours(24);
 
         String token = Jwts.builder()
                 .setSubject(email)

@@ -2,6 +2,7 @@ package com.ev.ocpp16.global.config.security;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -35,40 +37,52 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-
-        final String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER);
-
         String email = null;
         String jwt = null;
 
-        try {
-            if (authorizationHeader != null && authorizationHeader.startsWith(BEARER_PREFIX)) {
-                jwt = authorizationHeader.substring(BEARER_PREFIX.length());
+        final String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER);
+        if (authorizationHeader != null && authorizationHeader.startsWith(BEARER_PREFIX)) {
+            jwt = authorizationHeader.substring(BEARER_PREFIX.length());
+        }
+
+        if (jwt == null) {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                jwt = Arrays.stream(cookies)
+                        .filter(cookie -> "jwt".equals(cookie.getName()))
+                        .map(Cookie::getValue)
+                        .findFirst()
+                        .orElse(null);
+            }
+        }
+
+        if (jwt != null) {
+            try {
                 email = JwtUtil.extractEmail(jwt);
-            }
 
-            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                if (JwtUtil.isTokenValid(jwt, email)) {
-                    var userDetails = userDetailsService.loadUserByUsername(email);
-                    var authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
-                            userDetails.getAuthorities());
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    if (JwtUtil.isTokenValid(jwt, email)) {
+                        var userDetails = userDetailsService.loadUserByUsername(email);
+                        var authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
+                                userDetails.getAuthorities());
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
                 }
+            } catch (JwtException e) {
+                var status = ApiExceptionStatus.INVALID_CREDENTIALS;
+
+                ApiExceptionResponse errorResponse = ApiExceptionResponse.builder()
+                        .timestamp(DateTimeUtil.currentKoreanLocalDateTime())
+                        .detail(status.getResultMessage())
+                        .errorCode(status.getResultCode())
+                        .build();
+
+                response.setStatus(status.getStatus().value());
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+                response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+                return;
             }
-        } catch (JwtException e) {
-            var status = ApiExceptionStatus.INVALID_CREDENTIALS;
-
-            ApiExceptionResponse errorResponse = ApiExceptionResponse.builder()
-                    .timestamp(DateTimeUtil.currentKoreanLocalDateTime())
-                    .detail(status.getResultMessage())
-                    .errorCode(status.getResultCode())
-                    .build();
-
-            response.setStatus(status.getStatus().value());
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-            response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
-            return;
         }
 
         chain.doFilter(request, response);
