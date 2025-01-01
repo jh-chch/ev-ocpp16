@@ -5,12 +5,13 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ev.ocpp16.domain.chargingManagement.dto.ChargerQueryDTO;
-import com.ev.ocpp16.domain.chargingManagement.dto.ChargersQueryDTO;
 import com.ev.ocpp16.domain.chargingManagement.entity.ChargeHistory;
 import com.ev.ocpp16.domain.chargingManagement.service.ChargerQueryService;
 import com.ev.ocpp16.domain.chargingManagement.service.HistoryQueryService;
+import com.ev.ocpp16.domain.site.service.SiteQueryService;
 import com.ev.ocpp16.web.dto.ChargeHistoryQueryDTO;
+import com.ev.ocpp16.web.dto.ChargerQueryDTO;
+import com.ev.ocpp16.web.dto.ChargersQueryDTO;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,8 +20,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ChargeInfoService {
 
+    private final SiteQueryService siteQueryService;
     private final ChargerQueryService chargerQueryService;
     private final HistoryQueryService historyQueryService;
+
+    /**
+     * 사이트 목록 조회
+     * 
+     * @return 사이트 목록
+     */
+    public List<String> getSites() {
+        return siteQueryService.getSites();
+    }
 
     /**
      * 사이트의 모든 충전기 조회

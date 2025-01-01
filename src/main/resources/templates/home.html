@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/default_layout}">
+
+<th:block layout:fragment="content">
+
+    <!-- 사이트 목록 -->
+    <div id="sites">
+        <select id="siteNames">
+            <option th:each="siteName : ${siteNames}" th:value="${siteName}" th:text="${siteName}"></option>
+        </select>
+    </div>
+
+    <!-- 충전기 목록 -->
+    <div id="chargers"></div>
+</th:block>
+
+</html>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        fetchChargers();
+
+        // 사이트 선택 시 충전기 목록 업데이트
+        document.getElementById('siteNames').addEventListener('change', fetchChargers);
+    });
+
+    function fetchChargers() {
+        const chargers = document.getElementById('chargers');
+        const siteName = document.getElementById('siteNames').value;
+
+        if (!siteName) {
+            chargers.innerHTML = "사이트가 존재하지 않습니다.";
+            return;
+        }
+
+        fetch('/api/v1/chargers?siteName=' + siteName, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('네트워크 응답이 올바르지 않습니다.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                chargers.innerHTML = '';
+                if (data.chargers && data.chargers.length > 0) {
+                    const ul = document.createElement('ul');
+                    data.chargers.forEach(charger => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `
+                        <span>${charger.name}</span> 
+                        <span>${charger.connectionStatus}</span>
+                    `;
+                        ul.appendChild(li);
+                    });
+                    chargers.appendChild(ul);
+                } else {
+                    chargers.innerHTML = "충전기가 존재하지 않습니다.";
+                }
+            })
+            .catch(error => {
+                console.error('네트워크 요청 오류:', error);
+            });
+    }
+
+</script>
