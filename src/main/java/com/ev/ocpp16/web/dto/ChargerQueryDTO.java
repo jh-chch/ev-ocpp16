@@ -1,4 +1,4 @@
-package com.ev.ocpp16.domain.chargingManagement.dto;
+package com.ev.ocpp16.web.dto;
 
 import org.hibernate.validator.constraints.Length;
 

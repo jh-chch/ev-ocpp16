@@ -1,4 +1,4 @@
-package com.ev.ocpp16.web.controller;
+package com.ev.ocpp16.web.controller.v1;
 
 import static com.ev.ocpp16.web.exception.ApiExceptionStatus.INVALID_AUTH_HEADER;
 
@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
-public class AuthApiControllerV1 {
+public class AuthApiController {
 
     private final AuthenticationManager authenticationManager;
     private final MembershipService membershipService;

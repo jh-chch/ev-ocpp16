@@ -1,4 +1,4 @@
-package com.ev.ocpp16.web.controller;
+package com.ev.ocpp16.web.controller.v1;
 
 import org.hibernate.validator.constraints.Length;
 import org.springframework.http.ResponseEntity;
@@ -10,15 +10,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ev.ocpp16.application.ChargeInfoService;
-import com.ev.ocpp16.domain.chargingManagement.dto.ChargerQueryDTO;
-import com.ev.ocpp16.domain.chargingManagement.dto.ChargersQueryDTO;
+import com.ev.ocpp16.web.dto.ChargerQueryDTO;
+import com.ev.ocpp16.web.dto.ChargersQueryDTO;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/chargers")
 @RequiredArgsConstructor
-public class ChargerApiControllerV1 {
+public class ChargerApiController {
 
     private final ChargeInfoService chargeInfoService;
 

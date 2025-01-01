@@ -1,4 +1,4 @@
-package com.ev.ocpp16.web.controller;
+package com.ev.ocpp16.web.controller.v1;
 
 import org.hibernate.validator.constraints.Length;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/members")
 @RequiredArgsConstructor
-public class MemberApiControllerV1 {
+public class MemberApiController {
 
     private final MembershipService membershipService;
     private final ChargeInfoService chargeInfoService;
@@ -27,7 +27,7 @@ public class MemberApiControllerV1 {
     // 회원 조회
     @GetMapping("/{idToken}")
     public ResponseEntity<MemberQueryDTO.Response> getMemberByIdToken(
-            @PathVariable @Length(max = 36) String idToken) {
+            @PathVariable("idToken") @Length(max = 36) String idToken) {
         return ResponseEntity.ok(membershipService.getMember(idToken));
     }
 
