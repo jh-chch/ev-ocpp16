@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ev.ocpp16.application.ChargeInfoService;
 import com.ev.ocpp16.application.MembershipService;
-import com.ev.ocpp16.domain.member.dto.MemberQueryDTO;
 import com.ev.ocpp16.web.dto.ChargeHistoryQueryDTO;
+import com.ev.ocpp16.web.dto.MemberQueryDTO;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,14 +27,14 @@ public class MemberApiController {
     // 회원 조회
     @GetMapping("/{idToken}")
     public ResponseEntity<MemberQueryDTO.Response> getMemberByIdToken(
-            @PathVariable("idToken") @Length(max = 36) String idToken) {
-        return ResponseEntity.ok(membershipService.getMember(idToken));
+            @PathVariable("idToken") @Length(max = 20) String idToken) {
+        return ResponseEntity.ok(membershipService.getMemberByIdToken(idToken));
     }
 
     // 회원 충전 이력 조회
     @GetMapping("/{idToken}/charge-history")
     public ResponseEntity<ChargeHistoryQueryDTO.Response> getChargeHistory(
-            @PathVariable("idToken") @Length(max = 36) String idToken,
+            @PathVariable("idToken") @Length(max = 20) String idToken,
             @Validated @ModelAttribute ChargeHistoryQueryDTO.Request request) {
         return ResponseEntity.ok(chargeInfoService.getChargeHistory(idToken, request));
     }

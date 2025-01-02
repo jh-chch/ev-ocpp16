@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -47,7 +46,6 @@ public class OcppWebSocketHandler extends TextWebSocketHandler {
         chargingManageService.updateAllChargerConnectionStatus(ConnectionStatus.DISCONNECTED);
     }
 
-    @Transactional
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         log.info("afterConnectionEstablished");
@@ -95,7 +93,6 @@ public class OcppWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    @Transactional
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         log.info("afterConnectionClosed");
