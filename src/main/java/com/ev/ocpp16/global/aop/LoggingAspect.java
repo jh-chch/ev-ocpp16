@@ -29,11 +29,11 @@ public class LoggingAspect {
     }
 
     // CONTROLLE
-    @Pointcut("within(@org.springframework.web.bind.annotation.RestController *)")
-    public void restControllerMethods() {
+    @Pointcut("execution(* com.ev.ocpp16.web.controller..*(..))")
+    public void controllerPackageMethods() {
     }
 
-    @Around("restControllerMethods()")
+    @Around("controllerPackageMethods()")
     public Object logRequestResponse(ProceedingJoinPoint joinPoint) throws Throwable {
         String requestId = UUID.randomUUID().toString();
         MDC.put("mdcKey", requestId);
