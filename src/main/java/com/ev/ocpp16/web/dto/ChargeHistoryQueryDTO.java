@@ -11,11 +11,13 @@ import com.ev.ocpp16.domain.chargingManagement.entity.ChargeHistory;
 import com.ev.ocpp16.domain.member.entity.enums.Address;
 
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Data;
 
 public class ChargeHistoryQueryDTO {
 
     @Data
+    @NoArgsConstructor
     public static class Request {
         @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime startDatetime;
@@ -33,8 +35,10 @@ public class ChargeHistoryQueryDTO {
             return new Response(
                     chargeHistories.stream()
                             .map(ch -> new ChargeHistoryDTO(
+                                    ch.getChargerConnector().getCharger().getSite().getName(),
                                     ch.getStartDatetime(),
                                     ch.getEndDatetime(),
+                                    ch.getTotalPrice(),
                                     ch.getTotalMeterValue(),
                                     ch.getMember().getUsername(),
                                     ch.getMember().getPhoneNumber(),
@@ -47,8 +51,10 @@ public class ChargeHistoryQueryDTO {
         @Data
         @AllArgsConstructor
         public static class ChargeHistoryDTO {
+            private String siteName;
             private LocalDateTime startDatetime;
             private LocalDateTime endDatetime;
+            private BigDecimal totalPrice;
             private BigDecimal totalMeterValue;
             private String username;
             private String phoneNumber;

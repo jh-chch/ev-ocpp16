@@ -4,6 +4,7 @@ import static com.ev.ocpp16.domain.chargingManagement.entity.QChargeHistory.char
 import static com.ev.ocpp16.domain.chargingManagement.entity.QCharger.charger;
 import static com.ev.ocpp16.domain.chargingManagement.entity.QChargerConnector.chargerConnector;
 import static com.ev.ocpp16.domain.member.entity.QMember.member;
+import static com.ev.ocpp16.domain.site.entity.QSite.site;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -33,6 +34,7 @@ public class HistoryQueryRepository {
                 .leftJoin(chargeHistory.member, member).fetchJoin()
                 .leftJoin(chargeHistory.chargerConnector, chargerConnector).fetchJoin()
                 .leftJoin(chargerConnector.charger, charger).fetchJoin()
+                .leftJoin(charger.site, site).fetchJoin()
                 .where(
                         idTokenEq(idToken).and(dateCondition(startDatetime, endDatetime)))
                 .fetch();

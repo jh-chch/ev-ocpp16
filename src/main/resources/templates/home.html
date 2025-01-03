@@ -3,6 +3,13 @@
     layout:decorate="~{layout/default_layout}">
 
 <th:block layout:fragment="content">
+    <!-- 날짜 선택 영역 추가 -->
+    <div id="dateRange">
+        <label for="startDatetime">시작일:</label>
+        <input type="datetime-local" id="startDatetime" name="startDatetime">
+        <label for="endDatetime">종료일:</label>
+        <input type="datetime-local" id="endDatetime" name="endDatetime">
+    </div>
     <!-- 회원 검색창 -->
     <div id="memberSearch">
         <select id="memberSearchType">
@@ -111,8 +118,8 @@
     }
 
     /**
-         * 회원 목록 조회
-         */
+     * 회원 목록 조회
+     */
     async function fetchMembersBySiteName(page = 0) {
         const members = document.getElementById('members');
         const siteName = document.getElementById('siteNames').value;
@@ -151,6 +158,7 @@
                             <th>주소</th>
                             <th>권한</th>
                             <th>계정상태</th>
+                            <th>충전이력</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -160,10 +168,13 @@
                                 <td>${member.username}</td>
                                 <td>${member.phoneNumber}</td>
                                 <td>${member.carNumber}</td>
-                                <td>${[member.address?.zipCode, member.address?.address1, member.address?.address2]
+                                <td>${[member.address.zipCode, member.address?.address1, member.address?.address2]
                     .filter(Boolean).join(' ')}</td>
                                 <td>${member.role === 'ROLE_ADMIN' ? '관리자' : '사용자'}</td>
                                 <td>${member.accountStatus}</td>
+                                <td>
+                                    <button onclick="downloadChargeHistory('${member.idToken}')">Excel</button>
+                                </td>
                             </tr>
                         `).join('')}
                     </tbody>
@@ -201,6 +212,35 @@
         } catch (error) {
             console.error('회원 목록 조회 오류:', error);
             members.innerHTML = '<p>오류가 발생했습니다. 다시 시도해주세요.</p>';
+        }
+    }
+
+    // Excel 충전 이력 다운로드
+    async function downloadChargeHistory(idToken) {
+        const startDatetime = document.getElementById('startDatetime').value;
+        const endDatetime = document.getElementById('endDatetime').value;
+
+        if (!startDatetime || !endDatetime) {
+            alert('조회 기간을 선택해주세요.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/members/${idToken}/charge-history/excel?startDatetime=${startDatetime}&endDatetime=${endDatetime}`);
+            if (!response.ok) throw new Error('다운로드 실패');
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `충전이력_${idToken}_${startDatetime}_${endDatetime}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove();
+        } catch (error) {
+            console.error('Excel 다운로드 오류:', error);
+            alert('Excel 다운로드 중 오류가 발생했습니다.');
         }
     }
 </script>
