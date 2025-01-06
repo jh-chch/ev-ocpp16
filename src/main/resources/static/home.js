@@ -136,13 +136,22 @@ const ExcelService = {
 // UI Service
 const UIService = {
     renderMessage(element, message) {
-        element.innerHTML = `<p>${message}</p>`;
+        element.innerHTML = `<p class="message">${message}</p>`;
     },
 
     renderChargers(chargers) {
-        DOM.chargersDiv.innerHTML = chargers.map(({ name, serialNumber, connectionStatus }) => `
-            <li><span>${name}</span> <span>${serialNumber}</span> <span>${connectionStatus}</span></li>
+        const chargersList = document.createElement('ul');
+        chargersList.className = 'charger-list';
+        
+        chargersList.innerHTML = chargers.map(({ name, serialNumber, connectionStatus }) => `
+            <li class="charger-item status-${connectionStatus}">
+                <div class="charger-name">${name}</div>
+                <div class="charger-serial">${serialNumber}</div>
+            </li>
         `).join('');
+        
+        DOM.chargersDiv.innerHTML = '';
+        DOM.chargersDiv.appendChild(chargersList);
     },
 
     renderMembers(data) {

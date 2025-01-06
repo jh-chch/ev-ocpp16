@@ -2,13 +2,27 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <th:block th:fragment="footerFragment">
+    <style>
+        footer {
+            background: white;
+            border-top: 1px solid var(--gray-200);
+            height: 100px;
+        }
+
+        .footer-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+        }
+    </style>
     <footer>
-        <div>
-            <div>
-                <p>
-                    <small>Copyright © ...</small>
-                </p>
-            </div>
+        <div class="footer-container">
+            <p>
+                <small>Copyright © ...</small>
+            </p>
         </div>
     </footer>
 </th:block>

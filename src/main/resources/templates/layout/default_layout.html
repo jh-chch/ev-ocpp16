@@ -3,6 +3,35 @@
 <th:block th:replace="~{/layout/fragments/header :: headerFragment}"></th:block>
 <th:block th:replace="~{/layout/fragments/nav :: navFragment}"></th:block>
 
+<head>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        * {
+            font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        :root {
+            --primary: #00CCAA;
+            --primary-100: #02a88d;     
+            --primary-200: #01927a;     
+            --primary-hover: #00b396;
+            --danger: #f53737;
+            --danger-100: #f53737;      
+            --danger-200: #dd3131;      
+            --danger-hover: #d92f2f;
+            --gray-50: #f8f9fa;
+            --gray-100: #f1f3f4;
+            --gray-200: #e8eaed;
+            --gray-300: #dadce0;
+            --gray-700: #5f6368;
+            --gray-900: #202124;
+        }
+    </style>
+</head>
+
 <body>
     <th:block layout:fragment="content"></th:block>
 </body>

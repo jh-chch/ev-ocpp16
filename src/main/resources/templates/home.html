@@ -4,40 +4,293 @@
 
 <head>
     <script type="text/javascript" src="/home.js"></script>
+    <style>
+        body {
+            background: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .search-section {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            padding: 1.5rem;
+            background: var(--gray-50);
+            border-radius: 8px;
+            border: 1px solid var(--gray-200);
+        }
+
+        select,
+        input {
+            padding: 0.65rem 1rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            font-size: 0.825rem;
+            color: var(--gray-900);
+            background: white;
+        }
+
+        select:focus,
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+        }
+
+        button {
+            padding: 0.525rem 0.825rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.825rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+        }
+
+        table {
+            width: 100%;
+            border-spacing: 0;
+            border: 1px solid var(--gray-200);
+            border-radius: 4px;
+            margin-top: 0.5rem;
+        }
+
+        th,
+        td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+            font-size: 0.825rem;
+        }
+
+        th {
+            background: var(--gray-50);
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .message {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            color: var(--gray-700);
+            text-align: center;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        .pagination button {
+            background: white;
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+
+        .pagination button:hover {
+            background: var(--gray-50);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .pagination button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        #dateRange {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        #memberSearch {
+            flex: 2;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #memberSearchValue {
+            flex: 1;
+        }
+
+        #downloadSummaryChargeHistory {
+            text-align: right;
+        }
+
+        .charger-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            padding: 0.5rem;
+            list-style: none;
+            margin-bottom: 3rem;
+        }
+
+        .charger-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.25rem;
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            background: white;
+            justify-content: center;
+            position: relative;
+        }
+
+        .charger-item.status-CONNECTED {
+            animation: borderShineConnected 2s infinite;
+        }
+
+        .charger-item.status-DISCONNECTED {
+            animation: borderShineDisconnected 2s infinite;
+        }
+
+        .charger-name {
+            font-weight: bold;
+            font-size: 0.825rem;
+            color: var(--gray-900);
+            margin-bottom: 0.3rem;
+            text-align: center;
+        }
+
+        .charger-serial {
+            font-size: 0.625rem;
+            color: var(--gray-700);
+            text-align: center;
+        }
+
+        @keyframes borderShineConnected {
+            0% {
+                box-shadow: 0 0 0 1px var(--primary);
+            }
+
+            15% {
+                box-shadow: 0 0 0 1.5px var(--primary-100);
+            }
+
+            30% {
+                box-shadow: 0 0 0 2px var(--primary-100);
+            }
+
+            45% {
+                box-shadow: 0 0 0 2.5px var(--primary-100);
+            }
+
+            60% {
+                box-shadow: 0 0 0 3px var(--primary-200);
+            }
+
+            75% {
+                box-shadow: 0 0 0 2.5px var(--primary-100);
+            }
+
+            90% {
+                box-shadow: 0 0 0 2.2px var(--primary-100);
+            }
+
+            100% {
+                box-shadow: 0 0 0 1.5px var(--primary-100);
+            }
+        }
+
+        @keyframes borderShineDisconnected {
+            0% {
+                box-shadow: 0 0 0 1px var(--danger);
+            }
+
+            15% {
+                box-shadow: 0 0 0 1.5px var(--danger-100);
+            }
+
+            30% {
+                box-shadow: 0 0 0 2px var(--danger-100);
+            }
+
+            45% {
+                box-shadow: 0 0 0 2.5px var(--danger-100);
+            }
+
+            60% {
+                box-shadow: 0 0 0 3px var(--danger-200);
+            }
+
+            75% {
+                box-shadow: 0 0 0 2.5px var(--danger-100);
+            }
+
+            90% {
+                box-shadow: 0 0 0 2.0px var(--danger-100);
+            }
+
+            100% {
+                box-shadow: 0 0 0 1.5px var(--danger-100);
+            }
+        }
+    </style>
 </head>
 <th:block layout:fragment="content">
-    <!-- 날짜 선택 영역 추가 -->
-    <div id="dateRange">
-        <label for="startDatetime">시작일:</label>
-        <input type="datetime-local" id="startDatetime" name="startDatetime">
-        <label for="endDatetime">종료일:</label>
-        <input type="datetime-local" id="endDatetime" name="endDatetime">
-    </div>
-    <!-- 회원 검색창 -->
-    <div id="memberSearch">
-        <select id="memberSearchType">
-            <option value="email">이메일</option>
-            <option value="username">이름</option>
-            <option value="carNumber">차량번호</option>
-        </select>
-        <input type="text" id="memberSearchValue" placeholder="회원 검색...">
-    </div>
-    <!-- 전체 회원 충전 이력 다운로드 -->
-    <div id="downloadSummaryChargeHistory">
-        <button id="downloadSummaryButton">전체 Excel</button>
-    </div>
-    <!-- 검색된 회원 목록 -->
-    <div id="members"></div>
+    <div class="container">
+        <div id="sites">
+            <select id="siteNames">
+                <option th:each="siteName : ${siteNames}" th:value="${siteName}" th:text="${siteName}"></option>
+            </select>
+        </div>
+        <h3>충전기 목록</h3>
 
-    <!-- 사이트 목록 -->
-    <div id="sites">
-        <select id="siteNames">
-            <option th:each="siteName : ${siteNames}" th:value="${siteName}" th:text="${siteName}"></option>
-        </select>
-    </div>
+        <div id="chargers"></div>
+        <h3>충전 이력 조회</h3>
+        <div class="search-section">
+            <div id="dateRange">
+                <label for="startDatetime">시작일:</label>
+                <input type="datetime-local" id="startDatetime" name="startDatetime">
+                <label for="endDatetime">종료일:</label>
+                <input type="datetime-local" id="endDatetime" name="endDatetime">
+            </div>
 
-    <!-- 충전기 목록 -->
-    <div id="chargers"></div>
+            <div id="memberSearch">
+                <select id="memberSearchType">
+                    <option value="email">이메일</option>
+                    <option value="username">이름</option>
+                    <option value="carNumber">차량번호</option>
+                </select>
+                <input type="text" id="memberSearchValue" placeholder="회원 검색...">
+            </div>
+
+        </div>
+        <div id="downloadSummaryChargeHistory">
+            <button id="downloadSummaryButton">Excel</button>
+        </div>
+
+        <div id="members"></div>
+    </div>
 </th:block>
 
 </html>

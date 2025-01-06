@@ -1,11 +1,70 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block th:fragment="navFragment">
+    <style>
+        nav {
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            margin-bottom: 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        nav ul {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--gray-900);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        nav a[href="/"] {
+            font-weight: bold;
+        }
+
+        nav a[href="/logout"] {
+            color: var(--gray-700);
+        }
+
+        body {
+            margin: 0;
+        }
+    </style>
+
     <nav>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/logout">Logout</a></li>
-        </ul>
+        <div class="nav-container">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </div>
     </nav>
 </th:block>
 
