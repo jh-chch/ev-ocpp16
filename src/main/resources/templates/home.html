@@ -2,6 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
     layout:decorate="~{layout/default_layout}">
 
+<head>
+    <script type="text/javascript" src="/home.js"></script>
+</head>
 <th:block layout:fragment="content">
     <!-- 날짜 선택 영역 추가 -->
     <div id="dateRange">
@@ -19,6 +22,10 @@
         </select>
         <input type="text" id="memberSearchValue" placeholder="회원 검색...">
     </div>
+    <!-- 전체 회원 충전 이력 다운로드 -->
+    <div id="downloadSummaryChargeHistory">
+        <button id="downloadSummaryButton">전체 Excel</button>
+    </div>
     <!-- 검색된 회원 목록 -->
     <div id="members"></div>
 
@@ -34,213 +41,3 @@
 </th:block>
 
 </html>
-
-<script>
-    document.addEventListener('DOMContentLoaded', init);
-
-    /**
-     * 초기화
-     */
-    function init() {
-        attachEventListeners();
-        refreshData();
-    }
-
-    /**
-     * 이벤트 리스너 등록
-     */
-    function attachEventListeners() {
-        document.getElementById('siteNames').addEventListener('change', refreshData);
-        document.getElementById('memberSearchValue').addEventListener('input', () => fetchMembersBySiteName(0));
-        document.getElementById('memberSearchType').addEventListener('change', () => fetchMembersBySiteName(0));
-    }
-
-    /**
-     * 전체 데이터 새로고침
-     */
-    function refreshData() {
-        fetchChargersBySiteName();
-        fetchMembersBySiteName();
-        startAutoRefresh(fetchChargersBySiteName);
-    }
-
-    /**
-     * 자동 새로고침
-     */
-    let refreshInterval;
-    function startAutoRefresh(callback, interval = 60000) {
-        if (refreshInterval) {
-            clearInterval(refreshInterval);
-        }
-        refreshInterval = setInterval(() => {
-            callback().catch(console.error);
-        }, interval);
-    }
-
-    /**
-     * 공통 Fetch 요청 함수
-     */
-    async function fetchData(url, params = {}) {
-        const queryString = new URLSearchParams(params).toString();
-        const response = await fetch(`${url}?${queryString}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return await response.json();
-    }
-
-    /**
-     * 충전기 목록 조회
-     */
-    async function fetchChargersBySiteName() {
-        const chargers = document.getElementById('chargers');
-        const siteName = document.getElementById('siteNames').value;
-
-        if (!siteName) {
-            chargers.innerHTML = '<p>사이트가 존재하지 않습니다.</p>';
-            return;
-        }
-
-        try {
-            const data = await fetchData('/chargers', { siteName });
-            if (!data.chargers || data.chargers.length === 0) {
-                chargers.innerHTML = '<p>충전기가 존재하지 않습니다.</p>';
-                return;
-            }
-
-            chargers.innerHTML = data.chargers.map(({ name, serialNumber, connectionStatus }) => `
-                <li><span>${name}</span> <span>${serialNumber}</span> <span>${connectionStatus}</span></li>
-            `).join('');
-        } catch (error) {
-            console.error('충전기 목록 조회 오류:', error);
-            chargers.innerHTML = '<p>충전기 목록을 불러오는 중 오류가 발생했습니다.</p>';
-        }
-    }
-
-    /**
-     * 회원 목록 조회
-     */
-    async function fetchMembersBySiteName(page = 0) {
-        const members = document.getElementById('members');
-        const siteName = document.getElementById('siteNames').value;
-
-        if (!siteName) {
-            members.innerHTML = '<p>사이트가 존재하지 않습니다.</p>';
-            return;
-        }
-
-        try {
-            const searchType = document.getElementById('memberSearchType').value;
-            const searchValue = document.getElementById('memberSearchValue').value;
-
-            const data = await fetchData('/members', {
-                siteName,
-                searchType,
-                searchValue,
-                page,
-                size: 5
-            });
-
-            if (!data.members || !data.members.length) {
-                members.innerHTML = '<p>회원이 없습니다.</p>';
-                return;
-            }
-
-            // 테이블 생성
-            const tableHtml = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>이메일</th>
-                            <th>이름</th>
-                            <th>전화번호</th>
-                            <th>차량번호</th>
-                            <th>주소</th>
-                            <th>권한</th>
-                            <th>계정상태</th>
-                            <th>충전이력</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${data.members.map(member => `
-                            <tr>
-                                <td>${member.email}</td>
-                                <td>${member.username}</td>
-                                <td>${member.phoneNumber}</td>
-                                <td>${member.carNumber}</td>
-                                <td>${[member.address.zipCode, member.address?.address1, member.address?.address2]
-                    .filter(Boolean).join(' ')}</td>
-                                <td>${member.role === 'ROLE_ADMIN' ? '관리자' : '사용자'}</td>
-                                <td>${member.accountStatus}</td>
-                                <td>
-                                    <button onclick="downloadChargeHistory('${member.idToken}')">Excel</button>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
-
-            // 페이지네이션 생성
-            const currentPage = data.currentPage + 1;
-            const totalPages = data.totalPages;
-            const pageGroup = Math.ceil(currentPage / 5);
-            const lastPageGroup = Math.ceil(totalPages / 5);
-            const startPage = (pageGroup - 1) * 5 + 1;
-            const endPage = Math.min(startPage + 4, totalPages);
-
-            const paginationHtml = `
-                <div class="pagination">
-                    ${pageGroup > 1 ?
-                    `<button onclick="fetchMembersBySiteName(${startPage - 2})">이전</button>` : ''}
-                    
-                    ${Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i)
-                    .map(pageNum => `
-                            <button 
-                                onclick="fetchMembersBySiteName(${pageNum - 1})"
-                                class="${pageNum === currentPage ? 'active' : ''}"
-                            >${pageNum}</button>
-                        `).join('')}
-                    
-                    ${pageGroup < lastPageGroup ?
-                    `<button onclick="fetchMembersBySiteName(${endPage})">다음</button>` : ''}
-                </div>
-            `;
-
-            members.innerHTML = tableHtml + paginationHtml;
-
-        } catch (error) {
-            console.error('회원 목록 조회 오류:', error);
-            members.innerHTML = '<p>오류가 발생했습니다. 다시 시도해주세요.</p>';
-        }
-    }
-
-    // Excel 충전 이력 다운로드
-    async function downloadChargeHistory(idToken) {
-        const startDatetime = document.getElementById('startDatetime').value;
-        const endDatetime = document.getElementById('endDatetime').value;
-
-        if (!startDatetime || !endDatetime) {
-            alert('조회 기간을 선택해주세요.');
-            return;
-        }
-
-        try {
-            const response = await fetch(`/members/${idToken}/charge-history/excel?startDatetime=${startDatetime}&endDatetime=${endDatetime}`);
-            if (!response.ok) throw new Error('다운로드 실패');
-
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `충전이력_${idToken}_${startDatetime}_${endDatetime}.xlsx`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            a.remove();
-        } catch (error) {
-            console.error('Excel 다운로드 오류:', error);
-            alert('Excel 다운로드 중 오류가 발생했습니다.');
-        }
-    }
-</script>

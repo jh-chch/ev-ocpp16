@@ -36,7 +36,8 @@ public class HistoryQueryRepository {
                 .leftJoin(chargerConnector.charger, charger).fetchJoin()
                 .leftJoin(charger.site, site).fetchJoin()
                 .where(
-                        idTokenEq(idToken).and(dateCondition(startDatetime, endDatetime)))
+                        idTokenEq(idToken),
+                        dateCondition(startDatetime, endDatetime))
                 .fetch();
 
         if (findChargeHistories.isEmpty()) {

@@ -38,7 +38,9 @@ public class ChargerQueryRepository {
                         .select(charger)
                         .from(charger)
                         .join(charger.site, site).fetchJoin()
-                        .where(siteNmEq(siteName).and(chgrSerialEq(serialNumber)))
+                        .where(
+                                siteNmEq(siteName),
+                                chgrSerialEq(serialNumber))
                         .fetchOne());
     }
 

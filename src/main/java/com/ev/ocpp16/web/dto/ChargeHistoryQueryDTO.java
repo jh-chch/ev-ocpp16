@@ -40,6 +40,7 @@ public class ChargeHistoryQueryDTO {
                                     ch.getEndDatetime(),
                                     ch.getTotalPrice(),
                                     ch.getTotalMeterValue(),
+                                    ch.getMember().getIdToken(),
                                     ch.getMember().getUsername(),
                                     ch.getMember().getPhoneNumber(),
                                     ch.getMember().getAddress(),
@@ -56,6 +57,7 @@ public class ChargeHistoryQueryDTO {
             private LocalDateTime endDatetime;
             private BigDecimal totalPrice;
             private BigDecimal totalMeterValue;
+            private String idToken;
             private String username;
             private String phoneNumber;
             private Address address;

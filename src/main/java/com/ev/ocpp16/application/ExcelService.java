@@ -2,9 +2,6 @@ package com.ev.ocpp16.application;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
@@ -20,9 +17,6 @@ import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.ev.ocpp16.web.dto.ExcelHeaderInfo;
@@ -33,16 +27,14 @@ public class ExcelService {
 
     /**
      * @param dto Excel 생성 요청 DTO
-     * @return ResponseEntity<byte[]> Excel 파일 바이트 배열
+     * @return byte[] Excel 파일 바이트 배열
      * @throws IOException 파일 입출력 예외
      */
-    public ResponseEntity<byte[]> createExcelResponse(ExcelMakeDTO dto) throws IOException {
+    public byte[] createExcelResponse(ExcelMakeDTO dto) throws IOException {
         try (Workbook workbook = new XSSFWorkbook()) {
             createSheet(workbook, dto);
             byte[] excelBytes = convertToBytes(workbook);
-            return ResponseEntity.ok()
-                    .headers(createHeaders(dto.getFileName()))
-                    .body(excelBytes);
+            return excelBytes;
         }
     }
 
@@ -51,27 +43,24 @@ public class ExcelService {
         int startRowNum = 0;
 
         // 추가 헤더 정보 처리
-        if (dto.getAdditionalHeaders() != null && !dto.getAdditionalHeaders().isEmpty()) {
-            createAdditionalHeaders(sheet, dto.getAdditionalHeaders());
-            // 마지막 추가 헤더 행 이후에 빈 행 하나 추가
-            startRowNum = dto.getAdditionalHeaders().stream()
-                    .mapToInt(ExcelHeaderInfo::getRowIndex)
-                    .max()
-                    .orElse(-1) + 2;
-        }
+        createAdditionalHeaders(sheet, dto.getAdditionalHeaders());
+        
+        // 마지막 추가 헤더 행 이후에 빈 행 하나 추가
+        startRowNum = dto.getAdditionalHeaders().stream()
+                .mapToInt(ExcelHeaderInfo::getRowIndex)
+                .max()
+                .orElse(-1) + 2;
 
         // 컬럼 헤더 생성
-        if (dto.getHeaders() != null) {
-            Row headerRow = sheet.createRow(startRowNum);
-            createHeaderRow(headerRow, dto.getHeaders());
-            startRowNum++;
-        }
+        Row headerRow = sheet.createRow(startRowNum);
+        createHeaderRow(headerRow, dto.getHeaders());
+        startRowNum++;
 
         // 데이터 입력
         createDataRows(sheet, dto.getRows(), startRowNum);
 
         // 컬럼 너비 자동 조정
-        autoSizeColumns(sheet, dto.getHeaders() != null ? dto.getHeaders().length : dto.getRows().get(0).length);
+        autoSizeColumns(sheet, dto.getHeaders().length);
     }
 
     private void createAdditionalHeaders(Sheet sheet, List<ExcelHeaderInfo> additionalHeaders) {
@@ -101,8 +90,7 @@ public class ExcelService {
                         headerInfo.getRowIndex(),
                         headerInfo.getRowIndex(),
                         valueColumnIndex,
-                        valueColumnIndex + headerInfo.getColspan() - 2
-                );
+                        valueColumnIndex + headerInfo.getColspan() - 2);
 
                 // 병합할 범위가 유효한지 확인
                 if (mergeRange.getNumberOfCells() >= 2) {
@@ -182,7 +170,7 @@ public class ExcelService {
             sheet.autoSizeColumn(i);
             // 자동 조정된 너비에 약간의 여유 추가
             int currentWidth = sheet.getColumnWidth(i);
-            sheet.setColumnWidth(i, (int) (currentWidth * 1.2));
+            sheet.setColumnWidth(i, (int) (currentWidth * 1.5));
         }
     }
 
@@ -199,25 +187,5 @@ public class ExcelService {
             workbook.write(outputStream);
             return outputStream.toByteArray();
         }
-    }
-
-    private HttpHeaders createHeaders(String fileName) throws UnsupportedEncodingException {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.add("Content-Disposition", buildContentDisposition(fileName));
-        return headers;
-    }
-
-    private String buildContentDisposition(String fileName) throws UnsupportedEncodingException {
-        String encodedFileName = encodeFileName(fileName);
-        StringBuilder contentDisposition = new StringBuilder("attachment; filename=\"");
-        contentDisposition.append(new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1))
-                .append("\"; filename*=UTF-8''")
-                .append(encodedFileName);
-        return contentDisposition.toString();
-    }
-
-    private String encodeFileName(String fileName) throws UnsupportedEncodingException {
-        return URLEncoder.encode(fileName, StandardCharsets.UTF_8.name()).replace("+", "%20");
     }
 }

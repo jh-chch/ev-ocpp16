@@ -50,7 +50,7 @@ public class HistoryQueryService {
     }
 
     /**
-     * 회원 충전 이력 조회
+     * 회원 충전 이력 조회 idToken 없으면 전체 조회
      * 
      * @param request
      * @return
