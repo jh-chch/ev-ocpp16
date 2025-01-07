@@ -5,11 +5,13 @@ import com.ev.ocpp16.domain.member.entity.enums.AccountStatus;
 import com.ev.ocpp16.domain.member.entity.enums.Address;
 import com.ev.ocpp16.domain.member.entity.enums.Roles;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 public class MemberQueryDTO {
 
     @Data
+    @AllArgsConstructor
     public static class Response {
         private final String email;
         private final String username;

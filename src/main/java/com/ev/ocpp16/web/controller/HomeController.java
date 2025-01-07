@@ -32,6 +32,11 @@ public class HomeController {
     private final MembershipService membershipService;
     private final ChargeHistoryExcelGenerator excelGenerator;
 
+    @GetMapping("/api-docs")
+    public String getRestdocs() {
+        return "/docs/api-docs";
+    }
+
     @GetMapping("/login")
     public String login() {
         return "login";

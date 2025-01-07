@@ -13,6 +13,7 @@ import com.ev.ocpp16.application.ChargeInfoService;
 import com.ev.ocpp16.application.MembershipService;
 import com.ev.ocpp16.web.dto.ChargeHistoryQueryDTO;
 import com.ev.ocpp16.web.dto.MemberQueryDTO;
+import com.ev.ocpp16.web.dto.MembersQueryDTO;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +24,13 @@ public class MemberApiController {
 
     private final MembershipService membershipService;
     private final ChargeInfoService chargeInfoService;
+
+    // 회원 목록 조회
+    @GetMapping("")
+    public ResponseEntity<MembersQueryDTO.Response> getMembers(
+            @Validated @ModelAttribute MembersQueryDTO.Request request) {
+        return ResponseEntity.ok(membershipService.getMembers(request));
+    }
 
     // 회원 조회
     @GetMapping("/{idToken}")
