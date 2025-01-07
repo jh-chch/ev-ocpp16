@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.5'
 	id 'io.spring.dependency-management' version '1.1.6'
+	id "org.asciidoctor.jvm.convert" version "3.3.2"
 }
 
 group = 'com.charge'
@@ -19,6 +20,34 @@ jar {
 
 repositories {
 	mavenCentral()
+}
+
+configurations {
+	asciidoctorExt 
+}
+
+ext { 
+	snippetsDir = file('build/generated-snippets')
+}
+
+test { 
+	outputs.dir snippetsDir
+}
+
+asciidoctor { 
+	inputs.dir snippetsDir 
+	configurations 'asciidoctorExt' 
+	dependsOn test 
+}
+
+task copyDocument(type: Copy) {
+    dependsOn asciidoctor
+    from file("${asciidoctor.outputDir}/api-docs.html")
+    into file("src/main/resources/templates/docs")
+}
+
+build {
+    dependsOn copyDocument
 }
 
 dependencies {
@@ -57,6 +86,10 @@ dependencies {
 	implementation 'org.apache.poi:poi:5.2.3'
     implementation 'org.apache.poi:poi-ooxml:5.2.3'
 
+	asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor:3.0.0' 
+	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc:3.0.0' 
+
+	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
