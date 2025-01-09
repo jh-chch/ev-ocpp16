@@ -34,7 +34,7 @@ public class HomeController {
 
     @GetMapping("/api-docs")
     public String getRestdocs() {
-        return "/docs/api-docs";
+        return "docs/api-docs";
     }
 
     @GetMapping("/login")

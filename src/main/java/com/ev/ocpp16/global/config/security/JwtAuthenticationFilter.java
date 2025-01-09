@@ -1,20 +1,13 @@
 package com.ev.ocpp16.global.config.security;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.ev.ocpp16.global.utils.DateTimeUtil;
-import com.ev.ocpp16.web.exception.ApiExceptionResponse;
-import com.ev.ocpp16.web.exception.ApiExceptionStatus;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -29,8 +22,6 @@ import lombok.RequiredArgsConstructor;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
-    private final ObjectMapper objectMapper;
-
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
@@ -69,19 +60,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     }
                 }
             } catch (JwtException e) {
-                var status = ApiExceptionStatus.INVALID_CREDENTIALS;
-
-                ApiExceptionResponse errorResponse = ApiExceptionResponse.builder()
-                        .timestamp(DateTimeUtil.currentKoreanLocalDateTime())
-                        .detail(status.getResultMessage())
-                        .errorCode(status.getResultCode())
-                        .build();
-
-                response.setStatus(status.getStatus().value());
-                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-                response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
-                return;
             }
         }
 
