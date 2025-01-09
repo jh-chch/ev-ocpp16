@@ -63,7 +63,7 @@ jobs:
     
     - name: Docker build & push to EC2 Docker Registry
       run:
-        docker build -t ${{ secrets.EC2_HOST }}/${{ secrets.DOCKER_IMAGE_NAME }} .
+        docker build -t ${{ secrets.EC2_HOST }}:${{ secrets.EC2_DOCKER_REGISTRY_PORT }}/${{ secrets.DOCKER_IMAGE_NAME }} .
         docker push ${{ secrets.EC2_HOST }}:${{ secrets.EC2_DOCKER_REGISTRY_PORT }}/${{ secrets.DOCKER_IMAGE_NAME }}
 
     - name: Deploy on EC2
@@ -80,7 +80,7 @@ jobs:
           sudo docker run -d -p 8080:8080 --name ${{ secrets.DOCKER_CONTAINER_NAME }} localhost:${{ secrets.EC2_DOCKER_REGISTRY_PORT }}/${{ secrets.DOCKER_IMAGE_NAME }}
           
   dependency-submission:
- 
+
     runs-on: ubuntu-latest
     permissions:
       contents: write
