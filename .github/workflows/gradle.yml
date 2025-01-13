@@ -116,6 +116,15 @@ jobs:
             RESPONSE=$(curl -s http://localhost:${TARGET_PORT}/health)
             if [ "$RESPONSE" = "ok" ]; then
               echo "새로운 애플리케이션 배포 성공"
+              echo "set \$service_url ${TARGET_PROFILE};" | sudo docker exec -i nginxserver tee /etc/nginx/conf.d/service-env.inc
+              sleep 2
+              echo "nginx 설정 reload"
+              sudo docker exec nginxserver nginx -s reload
+              sleep 2
+              echo "이전 버전 컨테이너 제거: ${{ secrets.DOCKER_CONTAINER_NAME }}-$CURRENT_PROFILE"
+              sudo docker stop "${{ secrets.DOCKER_CONTAINER_NAME }}-$CURRENT_PROFILE" || true
+              sudo docker rm "${{ secrets.DOCKER_CONTAINER_NAME }}-$CURRENT_PROFILE" || true
+              
               break
             fi
             if [ $i -eq 20 ]; then
@@ -124,18 +133,6 @@ jobs:
             fi
           done
           
-          # nginx 설정 변경
-          echo "set \$service_url ${TARGET_PROFILE};" | sudo docker exec -i nginxserver tee /etc/nginx/conf.d/service-env.inc
-          
-          # nginx 설정 리로드
-          sudo docker exec nginxserver nginx -s reload
-
-          # 이전 버전 컨테이너 제거
-          echo "이전 버전 컨테이너 제거: ${{ secrets.DOCKER_CONTAINER_NAME }}-$CURRENT_PROFILE"
-          sudo docker stop "${{ secrets.DOCKER_CONTAINER_NAME }}-$CURRENT_PROFILE" || true
-          sudo docker rm "${{ secrets.DOCKER_CONTAINER_NAME }}-$CURRENT_PROFILE" || true
-          
-          # <none> 태그 이미지 삭제
           echo "<none> 태그 이미지 정리"
           sudo docker images | grep "<none>" | awk '{print $3}' | xargs -r sudo docker rmi
   dependency-submission:
