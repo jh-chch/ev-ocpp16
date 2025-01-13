@@ -64,8 +64,8 @@ jobs:
     - name: Docker build & push to Docker Registry
       run: |
         # 이미지 빌드 및 푸시
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest .
-        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }} .
+        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}
 
     - name: Deploy on EC2
       uses: appleboy/ssh-action@master
@@ -90,20 +90,20 @@ jobs:
           
           # 컨테이너 실행
           DOCKER_IMAGE=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}
-          CONTAINER_NAME="app-${TARGET_PROFILE}"
+          CONTAINER_NAME="${{ secrets.DOCKER_CONTAINER_NAME }}"
           
           # 기존 컨테이너 제거
           sudo docker stop ${CONTAINER_NAME} || true
           sudo docker rm ${CONTAINER_NAME} || true
           
           # 새 이미지 풀 및 컨테이너 실행
-          sudo docker pull ${DOCKER_IMAGE}:latest
+          sudo docker pull ${DOCKER_IMAGE}
           sudo docker run -d \
             --name $CONTAINER_NAME \
             -p ${TARGET_PORT}:${TARGET_PORT} \
             -e "PROFILES=${TARGET_PROFILE}" \
             -e "SERVER_PORT=${TARGET_PORT}" \
-            ${DOCKER_IMAGE}:latest
+            ${DOCKER_IMAGE}
           
           # Health check
           echo "새로운 애플리케이션 Health check 시작"
@@ -126,12 +126,6 @@ jobs:
           
           # nginx 설정 리로드
           sudo docker exec nginxserver nginx -s reload
-          
-          # 이전 버전 컨테이너 정리
-          OLD_PROFILE=$([ "$TARGET_PROFILE" = "blue" ] && echo "green" || echo "blue")
-          OLD_CONTAINER="app-${OLD_PROFILE}"
-          sudo docker stop ${OLD_CONTAINER} || true
-          sudo docker rm ${OLD_CONTAINER} || true
   dependency-submission:
     runs-on: ubuntu-latest
     permissions:
