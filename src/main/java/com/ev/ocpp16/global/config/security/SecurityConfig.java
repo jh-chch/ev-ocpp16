@@ -102,7 +102,18 @@ public class SecurityConfig {
 						.permitAll())
 				.logout(logout -> logout
 						.logoutUrl("/logout")
-						.logoutSuccessUrl("/login"))
+						.logoutSuccessUrl("/login")
+						.addLogoutHandler((request, response, authentication) -> {
+							// JWT 쿠키 삭제
+							ResponseCookie jwtCookie = ResponseCookie.from("jwt", "")
+									.httpOnly(true)
+									.secure(false)
+									.path("/")
+									.maxAge(0)
+									.sameSite("Strict")
+									.build();
+							response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+						}))
 				.csrf(csrf -> csrf.disable())
 				.build();
 	}
