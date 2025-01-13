@@ -74,8 +74,13 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
-          CURRENT_PROFILE=$(curl -s http://localhost/profile)
-          echo "현재 서비스 중인 프로필: $CURRENT_PROFILE"
+          CURRENT_PROFILE=$(curl -sf http://localhost/profile || echo "")
+          if [ -z "$CURRENT_PROFILE" ]; then
+            echo "현재 실행 중인 애플리케이션이 없습니다. 초기 실행으로 blue 프로필을 사용합니다."
+            CURRENT_PROFILE="green"  # blue를 첫 번째로 실행하기 위해
+          else
+            echo "현재 서비스 중인 프로필: $CURRENT_PROFILE"
+          fi
           
           # 새로 배포할 프로필 결정
           if [ "$CURRENT_PROFILE" = "blue" ]; then
