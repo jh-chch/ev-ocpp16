@@ -15,13 +15,13 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     permissions:
       contents: read
 
     steps:
     - uses: actions/checkout@v4
+    
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -31,7 +31,7 @@ jobs:
     - name: Set YML
       run: |
         mkdir -p src/main/resources
-        echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
+        echo "${{ secrets.APPLICATION_SECRET_YML }}" | base64 --decode > src/main/resources/application-secret.yml
         find src
 
     # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
@@ -61,10 +61,11 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
     
-    - name: Docker build & push to EC2 Docker Registry
+    - name: Docker build & push to Docker Registry
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }} .
-        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}
+        # 이미지 빌드 및 푸시
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest .
+        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest
 
     - name: Deploy on EC2
       uses: appleboy/ssh-action@master
@@ -73,18 +74,68 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
-          sudo docker stop ${{ secrets.DOCKER_CONTAINER_NAME }} || true
-          sudo docker rm -f ${{ secrets.DOCKER_CONTAINER_NAME }} || true
-          sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }} || true
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}
-          sudo docker run -d -p 8080:8080 --name ${{ secrets.DOCKER_CONTAINER_NAME }} ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}
+          # 현재 서비스 중인 프로필 확인
+          CURRENT_PROFILE=$(curl -s http://localhost/profile)
           
+          # 새로 배포할 프로필 결정
+          if [ "$CURRENT_PROFILE" = "blue" ]; then
+            TARGET_PROFILE=green
+            TARGET_PORT=8081
+          else
+            TARGET_PROFILE=blue
+            TARGET_PORT=8080
+          fi
+          
+          echo "애플리케이션 배포 시작: $TARGET_PROFILE $TARGET_PORT"
+          
+          # 컨테이너 실행
+          DOCKER_IMAGE=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}
+          CONTAINER_NAME="app-${TARGET_PROFILE}"
+          
+          # 기존 컨테이너 제거
+          sudo docker stop ${CONTAINER_NAME} || true
+          sudo docker rm ${CONTAINER_NAME} || true
+          
+          # 새 이미지 풀 및 컨테이너 실행
+          sudo docker pull ${DOCKER_IMAGE}:latest
+          sudo docker run -d \
+            --name $CONTAINER_NAME \
+            -p ${TARGET_PORT}:${TARGET_PORT} \
+            -e "PROFILES=${TARGET_PROFILE}" \
+            -e "SERVER_PORT=${TARGET_PORT}" \
+            ${DOCKER_IMAGE}:latest
+          
+          # Health check
+          echo "새로운 애플리케이션 Health check 시작"
+          for i in {1..20}
+          do
+            sleep 3
+            RESPONSE=$(curl -s http://localhost:${TARGET_PORT}/health)
+            if [ -n "$RESPONSE" ]; then
+              echo "새로운 애플리케이션 배포 성공"
+              break
+            fi
+            if [ $i -eq 20 ]; then
+              echo "새로운 애플리케이션 배포 실패"
+              exit 1
+            fi
+          done
+          
+          # nginx 설정 변경
+          echo "set \$service_url ${TARGET_PROFILE};" | sudo docker exec -i nginxserver tee /etc/nginx/conf.d/service-env.inc
+          
+          # nginx 설정 리로드
+          sudo docker exec nginxserver nginx -s reload
+          
+          # 이전 버전 컨테이너 정리
+          OLD_PROFILE=$([ "$TARGET_PROFILE" = "blue" ] && echo "green" || echo "blue")
+          OLD_CONTAINER="app-${OLD_PROFILE}"
+          sudo docker stop ${OLD_CONTAINER} || true
+          sudo docker rm ${OLD_CONTAINER} || true
   dependency-submission:
-
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 17
