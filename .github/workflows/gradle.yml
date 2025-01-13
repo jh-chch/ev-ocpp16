@@ -96,6 +96,9 @@ jobs:
           DOCKER_IMAGE=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest
           CONTAINER_NAME="${{ secrets.DOCKER_CONTAINER_NAME }}-${TARGET_PROFILE}"
           
+          echo "배포 이미지 이름: ${DOCKER_IMAGE}"
+          echo "배포 컨테이너 이름: ${CONTAINER_NAME}"
+
           # 새 이미지 풀 및 컨테이너 실행
           sudo docker pull ${DOCKER_IMAGE}
           sudo docker run -d \
@@ -110,8 +113,8 @@ jobs:
           for i in {1..20}
           do
             sleep 5
-            RESPONSE=$(curl -s http://localhost/health)
-            if [ -n "$RESPONSE" ]; then
+            RESPONSE=$(curl -s http://localhost:${TARGET_PORT}/health)
+            if [ "$RESPONSE" = "ok" ]; then
               echo "새로운 애플리케이션 배포 성공"
               break
             fi
@@ -128,8 +131,13 @@ jobs:
           sudo docker exec nginxserver nginx -s reload
 
           # 이전 버전 컨테이너 제거
+          echo "이전 버전 컨테이너 제거: ${{ secrets.DOCKER_CONTAINER_NAME }}-$CURRENT_PROFILE"
           sudo docker stop "${{ secrets.DOCKER_CONTAINER_NAME }}-$CURRENT_PROFILE" || true
           sudo docker rm "${{ secrets.DOCKER_CONTAINER_NAME }}-$CURRENT_PROFILE" || true
+          
+          # <none> 태그 이미지 삭제
+          echo "<none> 태그 이미지 정리"
+          sudo docker images | grep "<none>" | awk '{print $3}' | xargs -r sudo docker rmi
   dependency-submission:
     runs-on: ubuntu-latest
     permissions:
