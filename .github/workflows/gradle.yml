@@ -64,8 +64,8 @@ jobs:
     - name: Docker build & push to Docker Registry
       run: |
         # 이미지 빌드 및 푸시
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }} .
-        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest .
+        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest
 
     - name: Deploy on EC2
       uses: appleboy/ssh-action@master
@@ -74,8 +74,8 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
-          # 현재 서비스 중인 프로필 확인
           CURRENT_PROFILE=$(curl -s http://localhost/profile)
+          echo "현재 서비스 중인 프로필: $CURRENT_PROFILE"
           
           # 새로 배포할 프로필 결정
           if [ "$CURRENT_PROFILE" = "blue" ]; then
@@ -88,13 +88,8 @@ jobs:
           
           echo "애플리케이션 배포 시작: $TARGET_PROFILE $TARGET_PORT"
           
-          # 컨테이너 실행
-          DOCKER_IMAGE=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}
-          CONTAINER_NAME="${{ secrets.DOCKER_CONTAINER_NAME }}"
-          
-          # 기존 컨테이너 제거
-          sudo docker stop ${CONTAINER_NAME} || true
-          sudo docker rm ${CONTAINER_NAME} || true
+          DOCKER_IMAGE=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest
+          CONTAINER_NAME="${{ secrets.DOCKER_CONTAINER_NAME }}-${TARGET_PROFILE}"
           
           # 새 이미지 풀 및 컨테이너 실행
           sudo docker pull ${DOCKER_IMAGE}
@@ -109,8 +104,8 @@ jobs:
           echo "새로운 애플리케이션 Health check 시작"
           for i in {1..20}
           do
-            sleep 3
-            RESPONSE=$(curl -s http://localhost:${TARGET_PORT}/health)
+            sleep 5
+            RESPONSE=$(curl -s http://localhost/health)
             if [ -n "$RESPONSE" ]; then
               echo "새로운 애플리케이션 배포 성공"
               break
@@ -126,6 +121,10 @@ jobs:
           
           # nginx 설정 리로드
           sudo docker exec nginxserver nginx -s reload
+
+          # 이전 버전 컨테이너 제거
+          sudo docker stop "${{ secrets.DOCKER_CONTAINER_NAME }}-$CURRENT_PROFILE" || true
+          sudo docker rm "${{ secrets.DOCKER_CONTAINER_NAME }}-$CURRENT_PROFILE" || true
   dependency-submission:
     runs-on: ubuntu-latest
     permissions:
