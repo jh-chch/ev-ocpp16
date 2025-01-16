@@ -3,6 +3,7 @@ package com.ev.ocpp16.global.config.security;
 import static com.ev.ocpp16.websocket.Constants.USER_TYPE_ADMIN;
 import static com.ev.ocpp16.websocket.Constants.USER_TYPE_USER;
 
+import java.io.IOException;
 import java.time.Duration;
 
 import org.springframework.context.annotation.Bean;
@@ -15,13 +16,18 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.ev.ocpp16.domain.member.entity.Member;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -79,21 +85,25 @@ public class SecurityConfig {
 						.anyRequest().authenticated())
 				.formLogin(form -> form
 						.loginPage("/login")
-						.successHandler((request, response, authentication) -> {
-							// 로그인 성공 시 처리
-							Member principal = (Member) authentication.getPrincipal();
-							TokenResponse jwtToken = JwtUtil.generateToken(principal.getEmail());
+						.successHandler(new SavedRequestAwareAuthenticationSuccessHandler() {
+							@Override
+							public void onAuthenticationSuccess(HttpServletRequest request, 
+									HttpServletResponse response, 
+									Authentication authentication) throws IOException, ServletException {
+								Member principal = (Member) authentication.getPrincipal();
+								TokenResponse jwtToken = JwtUtil.generateToken(principal.getEmail());
 
-							// HttpOnly 쿠키에 JWT 저장
-							ResponseCookie jwtCookie = ResponseCookie.from("jwt", jwtToken.getToken())
-									.httpOnly(true)
-									.secure(false)
-									.path("/")
-									.maxAge(Duration.between(jwtToken.getIssuedAt(), jwtToken.getExpiresAt()).getSeconds())
-									.sameSite("Strict")
-									.build();
-							response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
-							response.sendRedirect("/");
+								ResponseCookie jwtCookie = ResponseCookie.from("jwt", jwtToken.getToken())
+										.httpOnly(true)
+										.secure(false)
+										.path("/")
+										.maxAge(Duration.between(jwtToken.getIssuedAt(), jwtToken.getExpiresAt()).getSeconds())
+										.sameSite("Strict")
+										.build();
+								response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+								
+								super.onAuthenticationSuccess(request, response, authentication);
+							}
 						})
 						.failureHandler((request, response, exception) -> {
 							// 로그인 실패 시 처리
