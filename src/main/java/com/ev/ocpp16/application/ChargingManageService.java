@@ -3,6 +3,7 @@ package com.ev.ocpp16.application;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,7 @@ import com.ev.ocpp16.domain.chargingManagement.entity.enums.ChargeStep;
 import com.ev.ocpp16.domain.chargingManagement.entity.enums.ChargerErrorCode;
 import com.ev.ocpp16.domain.chargingManagement.entity.enums.ConnectionStatus;
 import com.ev.ocpp16.domain.chargingManagement.entity.enums.ConnectorStatus;
+import com.ev.ocpp16.domain.chargingManagement.event.ChargerStatusChangedEvent;
 import com.ev.ocpp16.domain.chargingManagement.exception.ChargeHistoryException;
 import com.ev.ocpp16.domain.chargingManagement.exception.ChargeHistoryNotFoundException;
 import com.ev.ocpp16.domain.chargingManagement.exception.ChargerConnectorNotFoundException;
@@ -44,6 +46,7 @@ public class ChargingManageService {
     private final HistoryQueryService historyQueryService;
     private final HistoryCommandService historyCommandService;
     private final SiteRateQueryService siteRateQueryService;
+    private final ApplicationEventPublisher eventPublisher;
 
     /*
      * 모든 충전기 연결 상태 업데이트
@@ -66,6 +69,9 @@ public class ChargingManageService {
             throws ChargerNotFoundException, ChargerException {
         Charger findCharger = chargerQueryService.validateChargerForCharging(chargerIdentifier);
         chargerCommandService.updateChargerConnectionStatus(findCharger, connectionStatus);
+
+        // 충전기 상태 변경 이벤트
+        eventPublisher.publishEvent(new ChargerStatusChangedEvent(findCharger, connectionStatus));
     }
 
     /**

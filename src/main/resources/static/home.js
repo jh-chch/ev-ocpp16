@@ -9,7 +9,8 @@ const ENDPOINTS = {
     CHARGERS: '/chargers',
     MEMBERS: '/members',
     SUMMARY_EXCEL: '/members/charge-history/excel',
-    DETAILED_EXCEL: (idToken) => `/members/${idToken}/charge-history/excel`
+    DETAILED_EXCEL: (idToken) => `/members/${idToken}/charge-history/excel`,
+    CHARGER_EVENTS: '/chargers/events/subscribe'
 };
 
 const DOM = {
@@ -254,19 +255,62 @@ const UIService = {
     }
 };
 
-const AutoRefreshService = {
-    refreshInterval: null,
-
-    start(callback, interval = CONFIG.REFRESH_INTERVAL) {
+// SSE Service
+const SSEService = {
+    eventSource: null,
+    retryCount: 0,
+    maxRetries: 5,
+    
+    getRetryDelay() {
+        const BASE_DELAY = 1000;  // 1초
+        const MAX_DELAY = 30000;  // 30초
+        const exponentialDelay = BASE_DELAY * Math.pow(2, this.retryCount);
+        return Math.min(exponentialDelay, MAX_DELAY);
+    },
+    
+    start() {
         this.stop();
-        this.refreshInterval = setInterval(() => {
-            callback().catch(console.error);
-        }, interval);
+        
+        const siteName = DOM.siteSelect.value;
+        if (!siteName) return;
+        
+        this.eventSource = new EventSource(`${ENDPOINTS.CHARGER_EVENTS}?siteName=${siteName}`);
+        
+        this.eventSource.onmessage = (event) => {
+            try {
+                const response = JSON.parse(event.data);
+                if (Array.isArray(response.chargers)) {
+                    if (!response.chargers?.length) {
+                        return UIService.renderMessage(DOM.chargersDiv, '충전기가 존재하지 않습니다.');
+                    }
+                    UIService.renderChargers(response.chargers);
+                    this.retryCount = 0;
+                } else {
+                    console.error('잘못된 데이터 형식:', response);
+                }
+            } catch (error) {
+                console.error('SSE 데이터 처리 오류:', error);
+            }
+        };
+
+        this.eventSource.onerror = (error) => {
+            this.eventSource.close();
+            
+            if (this.retryCount < this.maxRetries) {
+                this.retryCount++;
+                const retryDelay = this.getRetryDelay();
+                console.log(`${this.retryCount}번째 재시도: ${retryDelay/1000}초 후 시도`);
+                setTimeout(() => this.start(), retryDelay);
+            } else {
+                UIService.renderMessage(DOM.chargersDiv, '실시간 업데이트 연결 실패. 페이지를 새로고침해주세요.');
+            }
+        };
     },
 
     stop() {
-        if (this.refreshInterval) {
-            clearInterval(this.refreshInterval);
+        if (this.eventSource) {
+            this.eventSource.close();
+            this.eventSource = null;
         }
     }
 };
@@ -279,7 +323,10 @@ const App = {
     },
 
     attachEventListeners() {
-        DOM.siteSelect.addEventListener('change', () => this.refreshData());
+        DOM.siteSelect.addEventListener('change', () => {
+            SSEService.stop();
+            this.refreshData();
+        });
         DOM.searchValue.addEventListener('input', () => MemberService.fetchMembers(0));
         DOM.searchType.addEventListener('change', () => MemberService.fetchMembers(0));
         DOM.downloadSummaryButton.addEventListener('click', () => ExcelService.downloadSummaryChargeHistory());
@@ -288,7 +335,7 @@ const App = {
     refreshData() {
         ChargerService.fetchChargers();
         MemberService.fetchMembers();
-        AutoRefreshService.start(ChargerService.fetchChargers);
+        SSEService.start();
     }
 };
 
