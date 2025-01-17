@@ -71,7 +71,7 @@ public class ChargingManageService {
         chargerCommandService.updateChargerConnectionStatus(findCharger, connectionStatus);
 
         // 충전기 상태 변경 이벤트
-        eventPublisher.publishEvent(new ChargerStatusChangedEvent(findCharger, connectionStatus));
+        eventPublisher.publishEvent(new ChargerStatusChangedEvent(findCharger.getSite().getName()));
     }
 
     /**
@@ -107,7 +107,11 @@ public class ChargingManageService {
     public void updateChargerInfo(String chargerIdentifier, ChargerInfoUpdateRequestDTO dto)
             throws ChargerNotFoundException, ChargerException {
         Charger findCharger = chargerQueryService.validateChargerForCharging(chargerIdentifier);
-        chargerCommandService.updateChargerInfo(findCharger, dto);
+        boolean isChanged = chargerCommandService.updateChargerInfo(findCharger, dto);
+        
+        if (isChanged) {
+            eventPublisher.publishEvent(new ChargerStatusChangedEvent(findCharger.getSite().getName()));
+        }
     }
 
     /**
@@ -134,6 +138,7 @@ public class ChargingManageService {
 
         // 충전기 커넥터 상태 변경
         chargerCommandService.updateChargerConnectorStatus(findChargerConnector, connectorStatus);
+        eventPublisher.publishEvent(new ChargerStatusChangedEvent(findCharger.getSite().getName()));
 
         // 충전기 오류 생성
         historyCommandService.createChargerError(findChargerConnector, errorCode);

@@ -1,6 +1,7 @@
 package com.ev.ocpp16.domain.chargingManagement.repository.query;
 
 import static com.ev.ocpp16.domain.chargingManagement.entity.QCharger.charger;
+import static com.ev.ocpp16.domain.chargingManagement.entity.QChargerConnector.chargerConnector;
 import static com.ev.ocpp16.domain.site.entity.QSite.site;
 
 import java.util.List;
@@ -24,12 +25,15 @@ public class ChargerQueryRepository {
     }
 
     public List<Charger> findChargers(String siteName) {
-        return queryFactory
+        List<Charger> fetch = queryFactory
                 .select(charger)
                 .from(charger)
+                .leftJoin(charger.chargerConnectors, chargerConnector).fetchJoin()
                 .join(charger.site, site).fetchJoin()
                 .where(siteNmEq(siteName))
                 .fetch();
+
+        return fetch;
     }
 
     public Optional<Charger> findCharger(String serialNumber, String siteName) {

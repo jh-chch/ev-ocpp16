@@ -77,7 +77,7 @@ public class ChargerCommandService {
      * @param charger 충전기
      * @param dto     충전기 정보 업데이트 요청 DTO
      */
-    public void updateChargerInfo(Charger charger, ChargerInfoUpdateRequestDTO dto) {
+    public boolean updateChargerInfo(Charger charger, ChargerInfoUpdateRequestDTO dto) {
         if (charger == null && dto == null) {
             throw new ChargerException("충전기와 충전기 정보 업데이트 요청 데이터는 필수입니다.");
         }
@@ -100,7 +100,7 @@ public class ChargerCommandService {
             throw new ChargerException("펌웨어 버전은 30자를 초과할 수 없습니다.");
         }
 
-        charger.changeChargerInfo(
+        return charger.changeChargerInfo(
                 dto.getChargePointModel(),
                 dto.getChargePointVendor(),
                 dto.getChargePointSerialNumber(),

@@ -1,5 +1,9 @@
 package com.ev.ocpp16.domain.chargingManagement.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 import com.ev.ocpp16.domain.chargingManagement.entity.enums.ConnectionStatus;
 import com.ev.ocpp16.domain.common.entity.BaseTimeEntity;
 import com.ev.ocpp16.domain.site.entity.Site;
@@ -14,6 +18,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 
@@ -53,21 +58,39 @@ public class Charger extends BaseTimeEntity {
     @JoinColumn(name = "site_id")
     private Site site;
 
+    @OneToMany(mappedBy = "charger")
+    private List<ChargerConnector> chargerConnectors = new ArrayList<>();
+
     public void changeConnectionStatus(ConnectionStatus connectionStatus) {
         this.connectionStatus = connectionStatus;
     }
 
-    public void changeChargerInfo(String model, String vendor, String serialNumber, String firmwareVersion) {
-        this.model = model;
-        this.vendor = vendor;
-
-        if (serialNumber != null) {
+    public boolean changeChargerInfo(
+            String model,
+            String vendor,
+            String serialNumber,
+            String firmwareVersion) {
+        
+        boolean isChanged = false;
+        
+        if (!Objects.equals(this.model, model)) {
+            this.model = model;
+            isChanged = true;
+        }
+        if (!Objects.equals(this.vendor, vendor)) {
+            this.vendor = vendor;
+            isChanged = true;
+        }
+        if (!Objects.equals(this.serialNumber, serialNumber)) {
             this.serialNumber = serialNumber;
+            isChanged = true;
         }
-
-        if (firmwareVersion != null) {
+        if (!Objects.equals(this.firmwareVersion, firmwareVersion)) {
             this.firmwareVersion = firmwareVersion;
+            isChanged = true;
         }
+        
+        return isChanged;
     }
 
 }

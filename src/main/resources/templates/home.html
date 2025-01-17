@@ -156,14 +156,9 @@
 
         .charger-item {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 0.25rem;
-            border-radius: 50%;
-            width: 100px;
-            height: 100px;
-            background: white;
-            justify-content: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
             position: relative;
             cursor: pointer;
         }
@@ -178,16 +173,13 @@
 
         .charger-name {
             font-weight: bold;
-            font-size: 0.825rem;
-            color: var(--gray-900);
-            margin-bottom: 0.3rem;
-            text-align: center;
+            margin-bottom: 4px;
         }
 
         .charger-serial {
-            font-size: 0.625rem;
-            color: var(--gray-700);
-            text-align: center;
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 8px;
         }
 
         @keyframes borderShineConnected {
@@ -295,18 +287,119 @@
 
         /* 기본 스타일 개선 */
         .charger-info {
+            flex: 1;
+        }
+
+        .connector-status-list {
             display: flex;
-            flex-direction: column;
-            gap: 5px;
+            gap: 6px;
+            flex-wrap: wrap;
         }
 
-        .charger-name {
-            font-weight: bold;
+        .connector-status {
+            display: inline-flex;
+            align-items: center;
+            background: #f5f5f5;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            border: 1px solid #e0e0e0;
+            white-space: nowrap;
         }
 
-        .charger-serial {
-            font-size: 0.9em;
+        .connector-id {
+            margin-right: 4px;
+            color: #555;
+        }
+
+        .connector-icon {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-left: 4px;
+        }
+
+        /* 툴팁 내 커넥터 리스트 */
+        .tooltip .connector-list {
+            margin: 4px 0 0 0;
+            padding-left: 12px;
+            list-style-type: none;
+        }
+
+        .tooltip .connector-list li {
+            margin: 2px 0;
+            font-size: 12px;
             color: #666;
+        }
+
+        /* 커넥터 상태별 스타일 */
+        .status-available {
+            border-color: #45a049;
+        }
+        .status-available .connector-icon {
+            background-color: #4CAF50;
+            box-shadow: 0 0 4px #4CAF50;
+        }
+
+        .status-preparing {
+            border-color: #f57c00;
+        }
+        .status-preparing .connector-icon {
+            background-color: #FF9800;
+            box-shadow: 0 0 4px #FF9800;
+        }
+
+        .status-charging {
+            border-color: #1976D2;
+        }
+        .status-charging .connector-icon {
+            background-color: #2196F3;
+            box-shadow: 0 0 4px #2196F3;
+            animation: pulse 2s infinite;
+        }
+
+        .status-suspended_evse,
+        .status-suspended_ev {
+            border-color: #5D4037;
+        }
+        .status-suspended_evse .connector-icon,
+        .status-suspended_ev .connector-icon {
+            background-color: #795548;
+        }
+
+        .status-finishing {
+            border-color: #455A64;
+        }
+        .status-finishing .connector-icon {
+            background-color: #607D8B;
+        }
+
+        .status-reserved {
+            border-color: #eeb553;
+        }
+        .status-reserved .connector-icon {
+            background-color: #eeba1e;
+            box-shadow: 0 0 4px #FFC107;
+        }
+
+        .status-unavailable {
+            border-color: #D32F2F;
+        }
+        .status-unavailable .connector-icon {
+            background-color: #F44336;
+        }
+
+        .status-faulted {
+            border-color: #7B1FA2;
+        }
+        .status-faulted .connector-icon {
+            background-color: #9C27B0;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
     </style>
 </head>

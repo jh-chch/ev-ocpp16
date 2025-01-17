@@ -144,16 +144,35 @@ const UIService = {
         const chargersList = document.createElement('ul');
         chargersList.className = 'charger-list';
         
-        chargersList.innerHTML = chargers.map(({ name, serialNumber, connectionStatus, model, vendor, firmwareVersion }) => `
+        chargersList.innerHTML = chargers.map(({ name, serialNumber, connectionStatus, model, vendor, firmwareVersion, chargerConnectors }) => `
             <li class="charger-item status-${connectionStatus}" data-tooltip>
                 <div class="charger-info">
                     <div class="charger-name">${name}</div>
                     <div class="charger-serial">${serialNumber}</div>
+                    <div class="connector-status-list">
+                        ${chargerConnectors
+                            .sort((a, b) => a.connectorId - b.connectorId)
+                            .map(connector => `
+                                <div class="connector-status status-${connector.connectorStatus.toLowerCase()}" 
+                                    title="커넥터 ${connector.connectorId}: ${connector.connectorStatus}">
+                                    <span class="connector-id">#${connector.connectorId}</span>
+                                    <span class="connector-icon"></span>
+                                </div>
+                            `).join('')}
+                    </div>
                 </div>
                 <div class="tooltip">
                     <p><strong>모델:</strong> ${model}</p>
                     <p><strong>제조사:</strong> ${vendor}</p>
                     <p><strong>펌웨어:</strong> ${firmwareVersion}</p>
+                    <p><strong>커넥터:</strong></p>
+                    <ul class="connector-list">
+                        ${chargerConnectors
+                            .sort((a, b) => a.connectorId - b.connectorId)
+                            .map(connector => `
+                                <li>커넥터 ${connector.connectorId}: ${connector.connectorStatus}</li>
+                            `).join('')}
+                    </ul>
                 </div>
             </li>
         `).join('');
