@@ -144,10 +144,17 @@ const UIService = {
         const chargersList = document.createElement('ul');
         chargersList.className = 'charger-list';
         
-        chargersList.innerHTML = chargers.map(({ name, serialNumber, connectionStatus }) => `
-            <li class="charger-item status-${connectionStatus}">
-                <div class="charger-name">${name}</div>
-                <div class="charger-serial">${serialNumber}</div>
+        chargersList.innerHTML = chargers.map(({ name, serialNumber, connectionStatus, model, vendor, firmwareVersion }) => `
+            <li class="charger-item status-${connectionStatus}" data-tooltip>
+                <div class="charger-info">
+                    <div class="charger-name">${name}</div>
+                    <div class="charger-serial">${serialNumber}</div>
+                </div>
+                <div class="tooltip">
+                    <p><strong>모델:</strong> ${model}</p>
+                    <p><strong>제조사:</strong> ${vendor}</p>
+                    <p><strong>펌웨어:</strong> ${firmwareVersion}</p>
+                </div>
             </li>
         `).join('');
         
@@ -255,9 +262,10 @@ const UIService = {
     }
 };
 
-// SSE Service
-const SSEService = {
-    eventSource: null,
+// WebSocket STOMP Service
+const WebSocketService = {
+    stompClient: null,
+    subscription: null,
     retryCount: 0,
     maxRetries: 5,
     
@@ -274,43 +282,63 @@ const SSEService = {
         const siteName = DOM.siteSelect.value;
         if (!siteName) return;
         
-        this.eventSource = new EventSource(`${ENDPOINTS.CHARGER_EVENTS}?siteName=${siteName}`);
+        const socket = new SockJS('/ws/monitor');
+        this.stompClient = Stomp.over(socket);
+        this.stompClient.debug = false;
         
-        this.eventSource.onmessage = (event) => {
-            try {
-                const response = JSON.parse(event.data);
-                if (Array.isArray(response.chargers)) {
-                    if (!response.chargers?.length) {
-                        return UIService.renderMessage(DOM.chargersDiv, '충전기가 존재하지 않습니다.');
+        this.stompClient.connect({}, 
+            // 연결 성공 시
+            () => {
+                this.retryCount = 0;
+                
+                // 구독 설정
+                const subscriptionUrl = `/topic/chargers/${siteName}`;
+                this.subscription = this.stompClient.subscribe(subscriptionUrl, 
+                    (message) => {
+                        try {
+                            const response = JSON.parse(message.body);
+                            if (Array.isArray(response.chargers)) {
+                                if (!response.chargers?.length) {
+                                    return UIService.renderMessage(DOM.chargersDiv, '충전기가 존재하지 않습니다.');
+                                }
+                                UIService.renderChargers(response.chargers);
+                            } else {
+                                console.error('잘못된 데이터 형식:', response);
+                            }
+                        } catch (error) {
+                            console.error('WebSocket 데이터 처리 오류:', error);
+                        }
                     }
-                    UIService.renderChargers(response.chargers);
-                    this.retryCount = 0;
-                } else {
-                    console.error('잘못된 데이터 형식:', response);
-                }
-            } catch (error) {
-                console.error('SSE 데이터 처리 오류:', error);
-            }
-        };
+                );
 
-        this.eventSource.onerror = (error) => {
-            this.eventSource.close();
-            
-            if (this.retryCount < this.maxRetries) {
-                this.retryCount++;
-                const retryDelay = this.getRetryDelay();
-                console.log(`${this.retryCount}번째 재시도: ${retryDelay/1000}초 후 시도`);
-                setTimeout(() => this.start(), retryDelay);
-            } else {
-                UIService.renderMessage(DOM.chargersDiv, '실시간 업데이트 연결 실패. 페이지를 새로고침해주세요.');
+                // 초기 데이터 요청
+                this.stompClient.send(`/app/chargers/${siteName}`, {}, JSON.stringify({}));
+            },
+            // 연결 실패 시
+            (error) => {
+                console.error('STOMP 연결 에러:', error);
+                if (this.retryCount < this.maxRetries) {
+                    this.retryCount++;
+                    const retryDelay = this.getRetryDelay();
+                    console.log(`${this.retryCount}번째 재시도: ${retryDelay/1000}초 후 시도`);
+                    setTimeout(() => this.start(), retryDelay);
+                } else {
+                    UIService.renderMessage(DOM.chargersDiv, '실시간 업데이트 연결 실패. 페이지를 새로고침해주세요.');
+                }
             }
-        };
+        );
     },
 
     stop() {
-        if (this.eventSource) {
-            this.eventSource.close();
-            this.eventSource = null;
+        if (this.subscription) {
+            this.subscription.unsubscribe();
+            this.subscription = null;
+        }
+        if (this.stompClient) {
+            if (this.stompClient.connected) {
+                this.stompClient.disconnect();
+            }
+            this.stompClient = null;
         }
     }
 };
@@ -324,7 +352,7 @@ const App = {
 
     attachEventListeners() {
         DOM.siteSelect.addEventListener('change', () => {
-            SSEService.stop();
+            WebSocketService.stop();
             this.refreshData();
         });
         DOM.searchValue.addEventListener('input', () => MemberService.fetchMembers(0));
@@ -335,7 +363,7 @@ const App = {
     refreshData() {
         ChargerService.fetchChargers();
         MemberService.fetchMembers();
-        SSEService.start();
+        WebSocketService.start();
     }
 };
 

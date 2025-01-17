@@ -4,6 +4,8 @@
 
 <head>
     <script type="text/javascript" src="/home.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <style>
         body {
             background: var(--gray-50);
@@ -163,6 +165,7 @@
             background: white;
             justify-content: center;
             position: relative;
+            cursor: pointer;
         }
 
         .charger-item.status-CONNECTED {
@@ -253,6 +256,57 @@
             100% {
                 box-shadow: 0 0 0 1.5px var(--danger-100);
             }
+        }
+
+        .tooltip {
+            display: none;
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            z-index: 100;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            min-width: 200px;
+        }
+
+        .tooltip p {
+            margin: 5px 0;
+        }
+
+        .charger-item:hover .tooltip {
+            display: block;
+        }
+
+        /* 툴팁 화살표 */
+        .tooltip::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 0 6px 6px 6px;
+            border-style: solid;
+            border-color: transparent transparent rgba(0, 0, 0, 0.8) transparent;
+        }
+
+        /* 기본 스타일 개선 */
+        .charger-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .charger-name {
+            font-weight: bold;
+        }
+
+        .charger-serial {
+            font-size: 0.9em;
+            color: #666;
         }
     </style>
 </head>

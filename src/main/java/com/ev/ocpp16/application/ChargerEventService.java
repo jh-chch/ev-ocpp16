@@ -1,87 +1,47 @@
 package com.ev.ocpp16.application;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.springframework.context.event.EventListener;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.messaging.simp.user.SimpUserRegistry;
 
 import com.ev.ocpp16.domain.chargingManagement.event.ChargerStatusChangedEvent;
 import com.ev.ocpp16.domain.chargingManagement.service.ChargerQueryService;
 import com.ev.ocpp16.web.dto.ChargersQueryDTO;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ChargerEventService {
     private final ChargerQueryService chargerQueryService;
-    private final Map<String, Set<SseEmitter>> siteEmitters = new ConcurrentHashMap<>();
-
-    public SseEmitter subscribe(String siteName) {
-        SseEmitter emitter = new SseEmitter(15 * 60 * 1000L);
-
-        // 초기 데이터 전송
-        try {
-            ChargersQueryDTO.Response chargers = ChargersQueryDTO.Response
-                    .of(chargerQueryService.getChargers(siteName));
-            emitter.send(SseEmitter.event()
-                .data(chargers)
-                .id("init"));
-        } catch (IOException e) {
-            emitter.completeWithError(e);
-            return emitter;
-        }
-
-        // 에미터 등록
-        siteEmitters.computeIfAbsent(siteName, k -> ConcurrentHashMap.newKeySet())
-                .add(emitter);
-
-        // 완료, 타임아웃, 에러 시 정리
-        emitter.onCompletion(() -> removeEmitter(siteName, emitter));
-        emitter.onTimeout(() -> removeEmitter(siteName, emitter));
-        emitter.onError(e -> removeEmitter(siteName, emitter));
-
-        return emitter;
-    }
-
-    private void removeEmitter(String siteName, SseEmitter emitter) {
-        Set<SseEmitter> emitters = siteEmitters.get(siteName);
-        if (emitters != null) {
-            emitters.remove(emitter);
-            if (emitters.isEmpty()) {
-                siteEmitters.remove(siteName);
-            }
-        }
-    }
+    private final SimpMessagingTemplate messagingTemplate;
+    private final SimpUserRegistry simpUserRegistry;
 
     @EventListener
     public void handleChargerStatusChanged(ChargerStatusChangedEvent event) {
-        Set<SseEmitter> emitters = siteEmitters.get(event.getSiteName());
-        if (emitters != null) {
-            ChargersQueryDTO.Response updatedChargers = ChargersQueryDTO.Response
-                    .of(chargerQueryService.getChargers(event.getSiteName()));
+        ChargersQueryDTO.Response updatedChargers = ChargersQueryDTO.Response
+                .of(chargerQueryService.getChargers(event.getSiteName()));
 
-            List<SseEmitter> deadEmitters = new ArrayList<>();
-            
-            emitters.forEach(emitter -> {
-                try {
-                    emitter.send(SseEmitter.event()
-                        .data(updatedChargers)
-                        .id(UUID.randomUUID().toString()));
-                } catch (IOException e) {
-                    deadEmitters.add(emitter);
-                }
+        // 현재 구독자 정보 로깅
+        String destination = "/topic/chargers/" + event.getSiteName();
+        simpUserRegistry.getUsers().forEach(user -> {
+            user.getSessions().forEach(session -> {
+                Set<String> subscriptions = session.getSubscriptions().stream()
+                    .map(subscription -> subscription.getDestination())
+                    .collect(Collectors.toSet());
+                
+                log.info("User Session ID: {}, Subscriptions: {}", 
+                    session.getId(), 
+                    subscriptions);
             });
-            
-            deadEmitters.forEach(emitter -> removeEmitter(event.getSiteName(), emitter));
-        }
-    }
+        });
 
+        // 상태 변경 시 해당 사이트의 모든 구독자에게 메시지 전송
+        messagingTemplate.convertAndSend(destination, updatedChargers);
+    }
 }
