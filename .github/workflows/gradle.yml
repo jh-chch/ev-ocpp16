@@ -93,7 +93,7 @@ jobs:
           
           echo "애플리케이션 배포 시작: $TARGET_PROFILE $TARGET_PORT"
           
-          DOCKER_IMAGE=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:${TARGET_PROFILE}
+          DOCKER_IMAGE=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest
           CONTAINER_NAME="${{ secrets.DOCKER_CONTAINER_NAME }}-${TARGET_PROFILE}"
           
           echo "배포 이미지 이름: ${DOCKER_IMAGE}"
@@ -135,8 +135,8 @@ jobs:
             fi
           done
           
-          echo "이전 버전 이미지 정리"
-          sudo docker images | grep "${CURRENT_PROFILE}" | awk '{print $3}' | xargs -r sudo docker rmi
+          echo "<none> 태그 이미지 정리"
+          sudo docker images | grep "${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}" | grep "<none>" | awk '{print $3}' | xargs -r sudo docker rmi
   dependency-submission:
     runs-on: ubuntu-latest
     permissions:
