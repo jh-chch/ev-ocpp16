@@ -17,6 +17,6 @@ public class ProfileController {
     
     @GetMapping("/health")
     public String health() {
-        return "ok";
+        return profile;
     }
 }
