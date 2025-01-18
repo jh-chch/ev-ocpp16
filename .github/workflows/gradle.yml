@@ -113,7 +113,7 @@ jobs:
           for i in {1..20}
           do
             sleep 3
-            RESPONSE=$(curl -s ${{ secrets.URL }}/health)
+            RESPONSE=$(curl -s http://localhost:${TARGET_PORT}/health)
 
             # 응답에서 'blue' 또는 'green'을 확인
             if [ "$RESPONSE" = "$TARGET_PROFILE" ]; then
