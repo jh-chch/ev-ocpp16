@@ -2,7 +2,6 @@ package com.ev.ocpp16.domain.chargingManagement.entity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import com.ev.ocpp16.domain.chargingManagement.entity.enums.ConnectionStatus;
 import com.ev.ocpp16.domain.common.entity.BaseTimeEntity;
@@ -70,26 +69,26 @@ public class Charger extends BaseTimeEntity {
             String vendor,
             String serialNumber,
             String firmwareVersion) {
-        
+
         boolean isChanged = false;
-        
-        if (!Objects.equals(this.model, model)) {
+
+        if (model != null && !model.equals(this.model)) {
             this.model = model;
             isChanged = true;
         }
-        if (!Objects.equals(this.vendor, vendor)) {
+        if (vendor != null && !vendor.equals(this.vendor)) {
             this.vendor = vendor;
             isChanged = true;
         }
-        if (!Objects.equals(this.serialNumber, serialNumber)) {
+        if (serialNumber != null && !serialNumber.equals(this.serialNumber)) {
             this.serialNumber = serialNumber;
             isChanged = true;
         }
-        if (!Objects.equals(this.firmwareVersion, firmwareVersion)) {
+        if (firmwareVersion != null && !firmwareVersion.equals(this.firmwareVersion)) {
             this.firmwareVersion = firmwareVersion;
             isChanged = true;
         }
-        
+
         return isChanged;
     }
 
