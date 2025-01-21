@@ -125,6 +125,8 @@ public class SecurityConfig {
 							response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
 						}))
 				.csrf(csrf -> csrf.disable())
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 				.build();
 	}
 
