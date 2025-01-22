@@ -22,6 +22,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 
 import com.ev.ocpp16.domain.member.entity.Member;
 
@@ -79,9 +81,18 @@ public class SecurityConfig {
 	@Bean
 	@Order(4)
 	public SecurityFilterChain formLoginSecurityFilterChain(HttpSecurity http) throws Exception {
+		HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
+		requestCache.setMatchingRequestParameterName("continue");
+		
 		return http
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/login", "/logout", "/profile", "/health").permitAll()
+						.requestMatchers(
+							"/login", 
+							"/logout", 
+							"/profile", 
+							"/health",
+							"/*.ico"
+						).permitAll()
 						.anyRequest().authenticated())
 				.formLogin(form -> form
 						.loginPage("/login")
@@ -102,7 +113,9 @@ public class SecurityConfig {
 										.build();
 								response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
 								
-								super.onAuthenticationSuccess(request, response, authentication);
+								SavedRequest savedRequest = requestCache.getRequest(request, response);
+								String redirectUrl = savedRequest != null ? savedRequest.getRedirectUrl() : "/";
+								getRedirectStrategy().sendRedirect(request, response, redirectUrl);
 							}
 						})
 						.failureHandler((request, response, exception) -> {
@@ -110,6 +123,7 @@ public class SecurityConfig {
 							response.sendRedirect("/login?error");
 						})
 						.permitAll())
+				.requestCache(cache -> cache.requestCache(requestCache))
 				.logout(logout -> logout
 						.logoutUrl("/logout")
 						.logoutSuccessUrl("/login")
