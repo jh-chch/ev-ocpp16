@@ -4,13 +4,9 @@ WORKDIR /app
 
 RUN apk add --no-cache fontconfig freetype ttf-dejavu
 
-ARG JAR_FILE=build/libs/*.jar
-ARG PROFILES
-ARG PORT
+COPY build/libs/ocpp-0.0.1-SNAPSHOT.jar app.jar
 
-COPY ${JAR_FILE} app.jar
+ENV PROFILES=local
+ENV SERVER_PORT=8080
 
-ENV PROFILES=${PROFILES}
-ENV SERVER_PORT=${PORT}
-
-ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-Dspring.profiles.active=${PROFILES}", "-Dserver.port=${SERVER_PORT}", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-Dspring.profiles.active=local", "-Dserver.port=8080", "-jar", "app.jar"]
